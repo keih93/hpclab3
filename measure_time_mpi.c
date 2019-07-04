@@ -63,8 +63,8 @@ int main (int c, char **v) {
     else if (rank == 0) {
       // Send to right
       MPI_Send(elapsed_time_send, 4, MPI_INT,(rank+1), comm, MPI_COMM_WORLD);
-      printf("0 sent %lf !!", elapsed_time_send[0]);
-      printf("0 recv %lf !!", elapsed_time_recv[0]);
+      printf("%d sent %lf !!",rank, elapsed_time_send);
+      printf("%d recv %lf !!",rank, elapsed_time_recv);
     }
     else{
       MPI_Recv(elapsed_time_recv, 4, MPI_INT,(rank-1), comm, MPI_COMM_WORLD, &status);
