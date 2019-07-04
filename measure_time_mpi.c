@@ -63,12 +63,12 @@ int main (int c, char **v) {
       for(int i = 0; i <rank; i ++){
         elapsed_time_send[i] = elapsed_time_recv[i];
       }
-      // Send to right
-      MPI_Send(elapsed_time_send, 4, MPI_INT,(rank+1), comm, MPI_COMM_WORLD);
       for(int i = 0; i <4; i ++){
         printf("%d has after sent %d = %lf !!\n",rank,i, elapsed_time_send[i]);
         printf("%d has after recv %d = %lf !!\n",rank,i, elapsed_time_recv[i]);
       }
+      // Send to right
+      MPI_Send(elapsed_time_send, 4, MPI_INT,(rank+1), comm, MPI_COMM_WORLD);
     }
     else if (rank == 0) {
       // Send to right
