@@ -49,7 +49,7 @@ int main (int c, char **v) {
     MPI_Send(elapsed_time, 10, MPI_INT, 1, 123, MPI_COMM_WORLD);
   }
   else{
-    printf("%s \n",elapsed_time);
+    printf("%s \n",elapsed_time[0]);
   }
   MPI_Finalize();
   return 0;
