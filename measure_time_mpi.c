@@ -52,17 +52,17 @@ int main (int c, char **v) {
   int comm = 99;
     if (rank != 0 && rank < size-1) {
       // Receive from left worker
-      MPI_Recv(elapsed_time_recv, 4, MPI_INT,(rank-1), 1, comm, &status);
+      MPI_Recv(elapsed_time_recv, 4, MPI_INT,(rank-1), comm, MPI_COMM_WORLD, &status);
       elapsed_time_send[rank-1] = elapsed_time_recv[rank-1];
       // Send to right
-      MPI_Send(elapsed_time_send, 4, MPI_INT,(rank+1), 2, comm);
+      MPI_Send(elapsed_time_send, 4, MPI_INT,(rank+1), comm, MPI_COMM_WORLD);
     }
     else if (rank == 0) {
       // Send to right
-      MPI_Send(elapsed_time_send, 4, MPI_INT,(rank+1), 2, comm);
+      MPI_Send(elapsed_time_send, 4, MPI_INT,(rank+1), comm, MPI_COMM_WORLD);
     }
     else{
-      MPI_Recv(elapsed_time_recv, 4, MPI_INT,(rank-1), 1, comm, &status);
+      MPI_Recv(elapsed_time_recv, 4, MPI_INT,(rank-1), comm, MPI_COMM_WORLD, &status);
       elapsed_time_send[rank-1] = elapsed_time_recv[rank-1];
     }
   MPI_Finalize();
