@@ -40,9 +40,9 @@ int main (int c, char **v) {
   int sleeptime = rank*1000000;
   printf("sleep time %d\n",sleeptime);
   usleep(sleeptime);
-  MPI_Finalize();
   //end measure time
   END_TIMEMEASUREMENT(measure_game_time, elapsed_time);
   printf("rank: %d time elapsed: %lf sec\n", rank, elapsed_time);
+  MPI_Finalize();
   return 0;
 }
