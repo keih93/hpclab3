@@ -47,8 +47,9 @@ int main (int c, char **v) {
   }
   usleep(sleeptime);
   //end measure time
-  END_TIMEMEASUREMENT(measure_game_time, elapsed_time_send[rank]);
-  printf("rank: %d time elapsed: %lf sec\n", rank, elapsed_time_send[rank]);
+  END_TIMEMEASUREMENT(measure_game_time, elapsed_time_recv[rank]);
+  elapsed_time_send[rank] = elapsed_time_recv[rank];
+  printf("rank: %d time elapsed: %lf sec\n", rank, elapsed_time_recv[rank]);
   int comm = 99;
     if (rank != 0 && rank < size-1) {
       // Receive from left worker
@@ -64,6 +65,9 @@ int main (int c, char **v) {
     else{
       MPI_Recv(elapsed_time_recv, 4, MPI_INT,(rank-1), comm, MPI_COMM_WORLD, &status);
       elapsed_time_send[rank-1] = elapsed_time_recv[rank-1];
+      for(int i = 0; i < 4; i++){
+        printf("%lf \n", elapsed_time_recv[i]);
+      }
     }
   MPI_Finalize();
   return 0;
