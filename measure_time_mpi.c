@@ -37,7 +37,10 @@ int main (int c, char **v) {
   // run task funktion and measure duration and calculate average and max times
   //start measure time
   START_TIMEMEASUREMENT(measure_game_time);
-  int sleeptime = rank*1000000;
+  int sleeptime = 0;
+  while (sleeptime < 100000) {
+      sleeptime++;
+  }
   printf("sleep time %d\n",sleeptime);
   usleep(sleeptime);
   //end measure time
