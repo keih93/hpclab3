@@ -73,7 +73,7 @@ int main (int c, char **v) {
       MPI_Recv(elapsed_time_recv, 4, MPI_INT,(rank-1), comm, MPI_COMM_WORLD, &status);
       for(int i = 0; i <rank; i ++){
         elapsed_time_send[i] = elapsed_time_recv[i];
-        printf("%d and %lf ",i, elapsed_time_send[i]);
+        printf("rank %d %d and %lf \n",rank,i, elapsed_time_send[i]);
       }
       for(int i = 0; i < 4; i++){
         printf("%lf \n", elapsed_time_recv[i]);
