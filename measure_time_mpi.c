@@ -33,7 +33,8 @@ int main (int c, char **v) {
   printf("size: %d \n",size );
   printf("rank: %d \n",rank );
   // run task funktion and measure duration and calculate average and max times
-
+  printf("%s\n",START_TIMEMEASUREMENT );
+  printf("%s\n",END_TIMEMEASUREMENT );
 
   MPI_Finalize();
   return 0;
