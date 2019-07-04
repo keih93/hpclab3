@@ -27,7 +27,7 @@ int main (int c, char **v) {
 
   MPI_Init(&c, &v);
   double elapsed_time;
-
+  allocatebuffers(&sendbuffer, &recvbuffer);
   // get rank and number of processes and print it out
   MPI_Comm_size(MPI_COMM_WORLD, &size);
   MPI_Comm_rank(MPI_COMM_WORLD, &rank);
