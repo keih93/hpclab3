@@ -55,7 +55,7 @@ int main (int c, char **v) {
   int comm = 99;
     if (rank != 0 && rank < size-1) {
       // Receive from left worker
-      MPI_Recv(elapsed_time_recv, 4, MPI_INT,(rank-1), comm, MPI_COMM_WORLD, &status);
+      MPI_Recv(elapsed_time_recv, 4, MPI_DOUBLE,(rank-1), comm, MPI_COMM_WORLD, &status);
       for(int i = 0; i <rank; i ++){
         elapsed_time_send[i] = elapsed_time_recv[i];
       }
@@ -63,14 +63,14 @@ int main (int c, char **v) {
         printf("%d sent %lf !! \n",rank, elapsed_time_send[i]);
       }
       // Send to right
-      MPI_Send(elapsed_time_send, 4, MPI_INT,(rank+1), comm, MPI_COMM_WORLD);
+      MPI_Send(elapsed_time_send, 4, MPI_DOUBLE,(rank+1), comm, MPI_COMM_WORLD);
     }
     else if (rank == 0) {
       // Send to right
-      MPI_Send(elapsed_time_send, 4, MPI_INT,(rank+1), comm, MPI_COMM_WORLD);
+      MPI_Send(elapsed_time_send, 4, MPI_DOUBLE,(rank+1), comm, MPI_COMM_WORLD);
     }
     else{
-      MPI_Recv(elapsed_time_recv, 4, MPI_INT,(rank-1), comm, MPI_COMM_WORLD, &status);
+      MPI_Recv(elapsed_time_recv, 4, MPI_DOUBLE,(rank-1), comm, MPI_COMM_WORLD, &status);
       for(int i = 0; i <rank; i ++){
         elapsed_time_send[i] = elapsed_time_recv[i];
         printf("rank %d %d and %lf \n",rank,i, elapsed_time_send[i]);
