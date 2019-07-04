@@ -34,15 +34,13 @@ int main (int c, char **v) {
   printf("rank: %d \n",rank );
   // run task funktion and measure duration and calculate average and max times
   //start measure time
-  double* elapsed_time_send;
-  double* elapsed_time_recv;
-  double elapsed_time_array[4];
-  allocatebuffers(&elapsed_time_send, &elapsed_time_recv);
-  if(rank == 0){
+  double elapsed_time_send[4];
+  double elapsed_time_recv[4];
+  allocatebuffers(&elapsed_time_send, &elapsed_time_send);
   for(int i = 0; i<4; i++){
-    elapsed_time_array[i] = 0;
+    elapsed_time_send[i] = 0;
+    elapsed_time_recv[i] = 0;
     }
-  }
   START_TIMEMEASUREMENT(measure_game_time);
   int sleeptime = 0;
   while (sleeptime < 1000000) {
@@ -50,21 +48,23 @@ int main (int c, char **v) {
   }
   usleep(sleeptime);
   //end measure time
-  END_TIMEMEASUREMENT(measure_game_time, elapsed_time_send);
+  END_TIMEMEASUREMENT(measure_game_time, elapsed_time_send[rank]);
   printf("rank: %d time elapsed: %lf sec\n", rank, elapsed_time_send);
-  if(rank != 0){
-    MPI_Send(&elapsed_time_send, 10, MPI_DOUBLE, 0, 123, MPI_COMM_WORLD);
-  }
-  else{
-    elapsed_time_array[0] = elapsed_time_send;
-    MPI_Recv(&elapsed_time_recv, 10, MPI_DOUBLE, 1, 123, MPI_COMM_WORLD, &status);
-    elapsed_time_array[1] = elapsed_time_recv;
-    MPI_Recv(&elapsed_time_recv, 10, MPI_DOUBLE, 2, 123, MPI_COMM_WORLD, &status);
-    elapsed_time_array[2] = elapsed_time_recv;
-    MPI_Recv(&elapsed_time_recv, 10, MPI_DOUBLE, 3, 123, MPI_COMM_WORLD, &status);
-    elapsed_time_array[3] = elapsed_time_recv;
-    printf("%s \n",elapsed_time_array[0]);
-  }
+    if (rank != 0 && rank < size-1) {
+      // Receive from left worker
+      MPI_Recv(elapsed_time_recv, 10, MPI_INT,(rank-1), 1, comm, &status);
+      elapsed_time_send[rank-1] = elapsed_time_recv[rank-1]
+      // Send to right
+      MPI_Send(elapsed_time_send, 10, MPI_INT,(rank+1), 2, comm);
+    }
+    else if (rank == 0) {
+      // Send to right
+      MPI_Send(elapsed_time_send, 10, MPI_INT,(rank+1), 2, comm);
+    }
+    else{
+      MPI_Recv(elapsed_time_recv, 10, MPI_INT,(rank-1), 1, comm, &status);
+      elapsed_time_send[rank-1] = elapsed_time_recv[rank-1]
+    }
   MPI_Finalize();
   return 0;
 }
