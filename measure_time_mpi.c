@@ -40,7 +40,7 @@ int main (int c, char **v) {
   double elapsed_time_array[4];
   if(rank == 0){
   for(int i = 0; i<4; i++){
-    elapsed_time[i] = 0;
+    elapsed_time_array[i] = 0;
     }
   }
   START_TIMEMEASUREMENT(measure_game_time);
