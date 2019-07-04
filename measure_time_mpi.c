@@ -26,8 +26,7 @@ int main (int c, char **v) {
   MPI_Status status;
 
   MPI_Init(&c, &v);
-  double elapsed_time;
-  allocatebuffers(&sendbuffer, &recvbuffer);
+
   // get rank and number of processes and print it out
   MPI_Comm_size(MPI_COMM_WORLD, &size);
   MPI_Comm_rank(MPI_COMM_WORLD, &rank);
@@ -35,9 +34,10 @@ int main (int c, char **v) {
   printf("rank: %d \n",rank );
   // run task funktion and measure duration and calculate average and max times
   //start measure time
-  double elapsed_time_send;
-  double elapsed_time_recv;
+  double* elapsed_time_send;
+  double* elapsed_time_recv;
   double elapsed_time_array[4];
+  allocatebuffers(&elapsed_time_send, &elapsed_time_recv);
   if(rank == 0){
   for(int i = 0; i<4; i++){
     elapsed_time_array[i] = 0;
