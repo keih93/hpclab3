@@ -76,7 +76,7 @@ int main (int c, char **v) {
         printf("rank %d %d and %lf \n",rank,i, elapsed_time_send[i]);
       }
       for(int i = 0; i < 4; i++){
-        printf("%lf \n", elapsed_time_recv[i]);
+        printf("%lf \n", elapsed_time_send[i]);
       }
     }
   MPI_Finalize();
