@@ -46,10 +46,12 @@ int main (int c, char **v) {
   END_TIMEMEASUREMENT(measure_game_time, elapsed_time[rank]);
   printf("rank: %d time elapsed: %lf sec\n", rank, elapsed_time[rank]);
   if(rank != 0){
-    MPI_Send(elapsed_time, 10, MPI_DOUBLE, 1, 123, MPI_COMM_WORLD);
+    MPI_Send(elapsed_time, 10, MPI_DOUBLE, 0, 123, MPI_COMM_WORLD);
   }
   else{
-    MPI_Recv(elapsed_time, 10, MPI_DOUBLE, 0, 123, MPI_COMM_WORLD, &status);
+    MPI_Recv(elapsed_time, 10, MPI_DOUBLE, 1, 123, MPI_COMM_WORLD, &status);
+    MPI_Recv(elapsed_time, 10, MPI_DOUBLE, 2, 123, MPI_COMM_WORLD, &status);
+    MPI_Recv(elapsed_time, 10, MPI_DOUBLE, 3, 123, MPI_COMM_WORLD, &status);
     printf("%s \n",elapsed_time[0]);
   }
   MPI_Finalize();
