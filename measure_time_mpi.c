@@ -34,8 +34,8 @@ int main (int c, char **v) {
   printf("rank: %d \n",rank );
   // run task funktion and measure duration and calculate average and max times
   //start measure time
-  double elapsed_time_send[4];
-  double elapsed_time_recv[4];
+  double* elapsed_time_send = malloc(sizeof(double)*4);
+  double* elapsed_time_recv = malloc(sizeof(double)*4);;
   for(int i = 0; i<4; i++){
     elapsed_time_send[i] = 0;
     elapsed_time_recv[i] = 0;
@@ -48,7 +48,7 @@ int main (int c, char **v) {
   usleep(sleeptime);
   //end measure time
   END_TIMEMEASUREMENT(measure_game_time, elapsed_time_send[rank]);
-  printf("rank: %d time elapsed: %lf sec\n", rank, elapsed_time_send);
+  printf("rank: %d time elapsed: %lf sec\n", rank, elapsed_time_send[rank]);
   int comm = 99;
     if (rank != 0 && rank < size-1) {
       // Receive from left worker
