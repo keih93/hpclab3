@@ -36,7 +36,6 @@ int main (int c, char **v) {
   //start measure time
   double elapsed_time_send[4];
   double elapsed_time_recv[4];
-  allocatebuffers(&elapsed_time_send, &elapsed_time_send);
   for(int i = 0; i<4; i++){
     elapsed_time_send[i] = 0;
     elapsed_time_recv[i] = 0;
@@ -53,17 +52,17 @@ int main (int c, char **v) {
   int comm = 99;
     if (rank != 0 && rank < size-1) {
       // Receive from left worker
-      MPI_Recv(elapsed_time_recv, 10, MPI_INT,(rank-1), 1, comm, &status);
+      MPI_Recv(elapsed_time_recv, 4, MPI_INT,(rank-1), 1, comm, &status);
       elapsed_time_send[rank-1] = elapsed_time_recv[rank-1];
       // Send to right
-      MPI_Send(elapsed_time_send, 10, MPI_INT,(rank+1), 2, comm);
+      MPI_Send(elapsed_time_send, 4, MPI_INT,(rank+1), 2, comm);
     }
     else if (rank == 0) {
       // Send to right
-      MPI_Send(elapsed_time_send, 10, MPI_INT,(rank+1), 2, comm);
+      MPI_Send(elapsed_time_send, 4, MPI_INT,(rank+1), 2, comm);
     }
     else{
-      MPI_Recv(elapsed_time_recv, 10, MPI_INT,(rank-1), 1, comm, &status);
+      MPI_Recv(elapsed_time_recv, 4, MPI_INT,(rank-1), 1, comm, &status);
       elapsed_time_send[rank-1] = elapsed_time_recv[rank-1];
     }
   MPI_Finalize();
