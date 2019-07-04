@@ -27,14 +27,16 @@ int main (int c, char **v) {
 
   MPI_Init(&c, &v);
 
+  int time1 = START_TIMEMEASUREMENT;
   // get rank and number of processes and print it out
   MPI_Comm_size(MPI_COMM_WORLD, &size);
   MPI_Comm_rank(MPI_COMM_WORLD, &rank);
   printf("size: %d \n",size );
   printf("rank: %d \n",rank );
   // run task funktion and measure duration and calculate average and max times
-  printf("%s\n",START_TIMEMEASUREMENT );
-  printf("%s\n",END_TIMEMEASUREMENT );
+  int time2 = END_TIMEMEASUREMENT;
+  printf("%s\n",time1 );
+  printf("%s\n",time2 );
 
   MPI_Finalize();
   return 0;
