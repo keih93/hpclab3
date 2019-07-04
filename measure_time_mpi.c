@@ -38,10 +38,9 @@ int main (int c, char **v) {
   //start measure time
   START_TIMEMEASUREMENT(measure_game_time);
   int sleeptime = 0;
-  while (sleeptime < 100000) {
+  while (sleeptime < 1000000) {
       sleeptime++;
   }
-  printf("sleep time %d\n",sleeptime);
   usleep(sleeptime);
   //end measure time
   END_TIMEMEASUREMENT(measure_game_time, elapsed_time);
