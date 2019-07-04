@@ -26,8 +26,7 @@ int main (int c, char **v) {
   MPI_Status status;
 
   MPI_Init(&c, &v);
-
-  double elapsed_time[4];
+  double elapsed_time;
 
   // get rank and number of processes and print it out
   MPI_Comm_size(MPI_COMM_WORLD, &size);
@@ -36,6 +35,14 @@ int main (int c, char **v) {
   printf("rank: %d \n",rank );
   // run task funktion and measure duration and calculate average and max times
   //start measure time
+  double elapsed_time_send;
+  double elapsed_time_recv;
+  double elapsed_time_array[4];
+  if(rank == 0){
+  for(int i = 0; i<4; i++){
+    elapsed_time[i] = 0;
+    }
+  }
   START_TIMEMEASUREMENT(measure_game_time);
   int sleeptime = 0;
   while (sleeptime < 1000000) {
@@ -43,16 +50,20 @@ int main (int c, char **v) {
   }
   usleep(sleeptime);
   //end measure time
-  END_TIMEMEASUREMENT(measure_game_time, elapsed_time[rank]);
-  printf("rank: %d time elapsed: %lf sec\n", rank, elapsed_time[rank]);
+  END_TIMEMEASUREMENT(measure_game_time, elapsed_time_send);
+  printf("rank: %d time elapsed: %lf sec\n", rank, elapsed_time_send);
   if(rank != 0){
-    MPI_Send(elapsed_time, 10, MPI_DOUBLE, 0, 123, MPI_COMM_WORLD);
+    MPI_Send(&elapsed_time_send, 10, MPI_DOUBLE, 0, 123, MPI_COMM_WORLD);
   }
   else{
-    MPI_Recv(elapsed_time, 10, MPI_DOUBLE, 1, 123, MPI_COMM_WORLD, &status);
-    MPI_Recv(elapsed_time, 10, MPI_DOUBLE, 2, 123, MPI_COMM_WORLD, &status);
-    MPI_Recv(elapsed_time, 10, MPI_DOUBLE, 3, 123, MPI_COMM_WORLD, &status);
-    printf("%s \n",elapsed_time[0]);
+    elapsed_time_array[0] = elapsed_time_send;
+    MPI_Recv(&elapsed_time_recv, 10, MPI_DOUBLE, 1, 123, MPI_COMM_WORLD, &status);
+    elapsed_time_array[1] = elapsed_time_recv;
+    MPI_Recv(&elapsed_time_recv, 10, MPI_DOUBLE, 2, 123, MPI_COMM_WORLD, &status);
+    elapsed_time_array[2] = elapsed_time_recv;
+    MPI_Recv(&elapsed_time_recv, 10, MPI_DOUBLE, 3, 123, MPI_COMM_WORLD, &status);
+    elapsed_time_array[3] = elapsed_time_recv;
+    printf("%s \n",elapsed_time_array[0]);
   }
   MPI_Finalize();
   return 0;
