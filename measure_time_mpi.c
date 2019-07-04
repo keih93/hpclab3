@@ -59,9 +59,6 @@ int main (int c, char **v) {
       for(int i = 0; i <rank; i ++){
         elapsed_time_send[i] = elapsed_time_recv[i];
       }
-      for(int i = 0; i <4; i ++){
-        printf("%d sent %lf !! \n",rank, elapsed_time_send[i]);
-      }
       // Send to right
       MPI_Send(elapsed_time_send, 4, MPI_DOUBLE,(rank+1), comm, MPI_COMM_WORLD);
     }
@@ -73,7 +70,6 @@ int main (int c, char **v) {
       MPI_Recv(elapsed_time_recv, 4, MPI_DOUBLE,(rank-1), comm, MPI_COMM_WORLD, &status);
       for(int i = 0; i <rank; i ++){
         elapsed_time_send[i] = elapsed_time_recv[i];
-        printf("rank %d %d and %lf \n",rank,i, elapsed_time_send[i]);
       }
       double max = 0;
       double average = 0;
