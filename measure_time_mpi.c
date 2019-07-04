@@ -22,7 +22,7 @@ res = (double)__FILE__##__func__##name##actualtime.tv_sec+((double)__FILE__##__f
 
 int main (int c, char **v) {
 
-  int rank, size, i;
+  int rank, size;
   MPI_Status status;
 
   MPI_Init(&c, &v);
@@ -75,9 +75,15 @@ int main (int c, char **v) {
         elapsed_time_send[i] = elapsed_time_recv[i];
         printf("rank %d %d and %lf \n",rank,i, elapsed_time_send[i]);
       }
+      double max = 0;
+      double average = 0;
       for(int i = 0; i < 4; i++){
-        printf("%lf \n", elapsed_time_send[i]);
+        if(elapsed_time_send[i] > max){
+          max = elapsed_time_send[i];
+        }
+          average = average + elapsed_time_send[i];
       }
+      printf("Max is %lf. Average is %lf \n", max, average/size);
     }
   MPI_Finalize();
   return 0;
