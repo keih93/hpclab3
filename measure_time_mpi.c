@@ -27,7 +27,7 @@ int main (int c, char **v) {
 
   MPI_Init(&c, &v);
 
-  double elapsed_time;
+  double* elapsed_time;
 
   // get rank and number of processes and print it out
   MPI_Comm_size(MPI_COMM_WORLD, &size);
@@ -45,6 +45,9 @@ int main (int c, char **v) {
   //end measure time
   END_TIMEMEASUREMENT(measure_game_time, elapsed_time);
   printf("rank: %d time elapsed: %lf sec\n", rank, elapsed_time);
+  if(rank != 0){
+    MPI_Send(buffer, 10, MPI_INT, 1, 123, MPI_COMM_WORLD);
+  }
   MPI_Finalize();
   return 0;
 }
