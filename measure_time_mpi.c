@@ -35,11 +35,13 @@ int main (int c, char **v) {
   // run task funktion and measure duration and calculate average and max times
   //start measure time
   double* elapsed_time_send = malloc(sizeof(double)*4);
-  double* elapsed_time_recv = malloc(sizeof(double)*4);;
+  double* elapsed_time_recv = malloc(sizeof(double)*4);
+  if(rank == 0){
   for(int i = 0; i<4; i++){
     elapsed_time_send[i] = 0;
     elapsed_time_recv[i] = 0;
     }
+  }
   START_TIMEMEASUREMENT(measure_game_time);
   int sleeptime = 0;
   while (sleeptime < 1000000) {
