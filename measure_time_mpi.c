@@ -37,6 +37,7 @@ int main (int c, char **v) {
   // run task funktion and measure duration and calculate average and max times
   //start measure time
   START_TIMEMEASUREMENT(measure_game_time);
+  usleep(rank*1000);
   MPI_Finalize();
   //end measure time
   END_TIMEMEASUREMENT(measure_game_time, elapsed_time);
