@@ -245,6 +245,7 @@ int main (int c, char **v) {
   int gsizes[2] = {width, height};  // global size of the domain without boundaries
   int lsizes[2] = {width/process_numX, height/process_numY};
 
+  MPI_Status status;
   double* elapsed_time_send = malloc(sizeof(double)*4);
   double* elapsed_time_recv = malloc(sizeof(double)*4);
   if(rank == 0){
@@ -272,33 +273,33 @@ int main (int c, char **v) {
   elapsed_time_send[rank] = elapsed_time_recv[rank];
   printf("rank: %d time elapsed: %lf sec\n", rank, elapsed_time_recv[rank]);
   int comm = 99;
-    if (rank != 0 && rank < size-1) {
+    if (rank != 0 && rank < num_tasks-1) {
       // Receive from left worker
-      MPI_Recv(elapsed_time_recv, size, MPI_DOUBLE,(rank-1), comm, MPI_COMM_WORLD, &status);
+      MPI_Recv(elapsed_time_recv, num_tasks, MPI_DOUBLE,(rank-1), comm, MPI_COMM_WORLD, &status);
       for(int i = 0; i <rank; i ++){
         elapsed_time_send[i] = elapsed_time_recv[i];
       }
       // Send to right
-      MPI_Send(elapsed_time_send, size, MPI_DOUBLE,(rank+1), comm, MPI_COMM_WORLD);
+      MPI_Send(elapsed_time_send, num_tasks, MPI_DOUBLE,(rank+1), comm, MPI_COMM_WORLD);
     }
     else if (rank == 0) {
       // Send to right
-      MPI_Send(elapsed_time_send, size, MPI_DOUBLE,(rank+1), comm, MPI_COMM_WORLD);
+      MPI_Send(elapsed_time_send, num_tasks, MPI_DOUBLE,(rank+1), comm, MPI_COMM_WORLD);
     }
     else{
-      MPI_Recv(elapsed_time_recv, size, MPI_DOUBLE,(rank-1), comm, MPI_COMM_WORLD, &status);
+      MPI_Recv(elapsed_time_recv, num_tasks, MPI_DOUBLE,(rank-1), comm, MPI_COMM_WORLD, &status);
       for(int i = 0; i <rank; i ++){
         elapsed_time_send[i] = elapsed_time_recv[i];
       }
       double max = 0;
       double average = 0;
-      for(int i = 0; i < size; i++){
+      for(int i = 0; i < num_tasks; i++){
         if(elapsed_time_send[i] > max){
           max = elapsed_time_send[i];
         }
           average = average + elapsed_time_send[i];
       }
-      printf("Max is %lf. Average is %lf \n", max, average/size);
+      printf("Max is %lf. Average is %lf \n", max, average/num_tasks);
     }
   MPI_Finalize();
 }
