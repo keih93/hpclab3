@@ -30,7 +30,7 @@ res = (double)__FILE__##__func__##name##actualtime.tv_sec+((double)__FILE__##__f
 int           rank = 0;            // The current MPI rank in the global communicator.
 int           rank_cart = 0;       // The current MPI rank in the cart communicator.
 int           num_tasks;           // The number of processes
-
+int           coords[2];
 
 
 MPI_Datatype  filetype;            //
@@ -71,6 +71,11 @@ void create_vtk_header (char * header, int width, int height, int timestep) {
   strcat (header, "LOOKUP_TABLE default\n");
 }
 
+void write_vtk_data (FILE * f, char * data, int length) {
+  if (fwrite (data, sizeof(char), length, f) != length) {
+    myexit ("Could not write vtk-Data");
+  }
+}
 
 void write_field (char* currentfield, int width, int height, int timestep) {
   if (timestep == 0){
@@ -80,11 +85,13 @@ void write_field (char* currentfield, int width, int height, int timestep) {
     create_vtk_header (vtk_header, width, height, timestep);
   }
 
-  //printf ("writing timestep %d\n", timestep);
+  printf ("Process %d writing timestep %d\n",rank, timestep);
   char filename[1024];
+  //"./gol/gol-%05d.vtk"
   snprintf (filename, 1024, "./gol/gol-%05d.vtk", timestep);
+  int local_array_size = width*height;
   MPI_Offset header_offset = (MPI_Offset)strlen(vtk_header);
-
+  MPI_Offset offset = (MPI_Offset)rank*width;
     /* TODO Create a new file handle for collective I/O
      *      Use the global 'file' variable.
    */
@@ -92,19 +99,31 @@ void write_field (char* currentfield, int width, int height, int timestep) {
    *
    */
   // rc = ...
-  MPI_File_open(MPI_COMM_WORLD,  "./gol/gol-%05d.vtk" ,MPI_MODE_CREATE | MPI_MODE_WRONLY, MPI_INFO_NULL, &file);
-  MPI_File_set_view(file, 0, MPI_INT, filetype, "native", MPI_INFO_NULL);
+
+  MPI_File_open(MPI_COMM_WORLD,  filename ,MPI_MODE_CREATE | MPI_MODE_WRONLY, MPI_INFO_NULL, &file);
   /* TODO Write the data using collective I/O
    *
    */
-   int local_array_size = width*height;
-   MPI_File_write_all(file, currentfield, local_array_size, MPI_INT, &status);
+   
+  MPI_File_write_at(file, 0, vtk_header, strlen(vtk_header), MPI_CHAR, MPI_STATUS_IGNORE);
+  MPI_File_set_view(file, offset + header_offset, MPI_CHAR, filetype, "native", MPI_INFO_NULL);
+  MPI_File_write(file, currentfield, offset, MPI_CHAR, &status);
 
 
   /* TODO Close the file handle.
    *
    */
    MPI_File_close(&file);
+   //fclose (file); */
+
+   //FILE *fp;       // The current file handle.
+   //char filename[1024];
+   //snprintf (filename, 1024, "./gol/gol-%05d.vtk", timestep);
+   //fp = fopen (filename, "w");
+   //write_vtk_data (fp, vtk_header, strlen (vtk_header));
+   //write_vtk_data (fp, currentfield, width * height);
+   //fclose (fp);
+   printf ("Process %d finished writing timestep %d\n",rank, timestep);
 }
 
 int countLifingsPeriodic(char* currentfield, int x, int y, int w, int h){
@@ -180,12 +199,13 @@ void game (int width, int height, int num_timesteps, int gsizes[2]) {
   filling_runner (currentfield, width, height);
 
   int time = 0;
-  write_field (currentfield, gsizes[X], gsizes[Y], time);
-
+  //write_field (currentfield, gsizes[X], gsizes[Y], time);
+  write_field (currentfield, width, height, time);
   for (time = 1; time <= num_timesteps; time++) {
     // TODO 2: implement evolve function (see above)
     evolve (currentfield, newfield, width, height);
-    write_field (newfield, gsizes[X], gsizes[Y], time);
+    write_field (newfield, width, height, time);
+    //write_field (newfield, gsizes[X], gsizes[Y], time);
     apply_periodic_boundaries(newfield,width,height);
     // TODO 3: implement SWAP of the fields
     char *temp = currentfield;
@@ -243,13 +263,16 @@ int main (int c, char **v) {
   */
   int dims[2] = {process_numX, process_numY};
   int periods[2] = {1,1};
-  int coords[2];
   MPI_Cart_create(MPI_COMM_WORLD, 2, dims, periods, 0, &cart_comm);
   MPI_Comm_rank(cart_comm, &rank_cart);
   MPI_Cart_coords(cart_comm, rank_cart, 2, coords);
   int gsizes[2] = {width, height};  // global size of the domain without boundaries
   int lsizes[2] = {width/process_numX, height/process_numY};
   int starts[2] = {coords[0]*lsizes[0],coords[1]*lsizes[1]};
+  int memsize[2] = {lsizes[0]+2,lsizes[1]+2};
+  int startsmem[2] = {coords[0]*lsizes[0]+2,coords[1]*lsizes[1]+2};
+  int first = 0;
+
 
   double* elapsed_time_send = malloc(sizeof(double)*4);
   double* elapsed_time_recv = malloc(sizeof(double)*4);
@@ -265,6 +288,7 @@ int main (int c, char **v) {
    *      Use the global variable 'filetype'.
    * HINT: use MPI_Type_create_subarray and MPI_Type_commit functions
   */
+  printf("%d create filetype\n",rank );
   MPI_Type_create_subarray(2,gsizes,lsizes,starts, MPI_ORDER_C,MPI_INT,&filetype);
   MPI_Type_commit(&filetype);
 
@@ -273,7 +297,8 @@ int main (int c, char **v) {
    *      This is another subarray datatype!
    *      Use the global variable 'memtype'.
   */
-
+  //MPI_Type_create_subarray(2,gsizes,memsize,starts, MPI_ORDER_C,MPI_INT,&memtype);
+  //MPI_Type_commit(&memtype);
   game(lsizes[X], lsizes[Y], num_timesteps, gsizes);
   END_TIMEMEASUREMENT(measure_game_time, elapsed_time_recv[rank]);
   elapsed_time_send[rank] = elapsed_time_recv[rank];
