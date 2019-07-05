@@ -71,11 +71,6 @@ void create_vtk_header (char * header, int width, int height, int timestep) {
   strcat (header, "LOOKUP_TABLE default\n");
 }
 
-void write_vtk_data (FILE * f, char * data, int length) {
-  if (fwrite (data, sizeof(char), length, f) != length) {
-    myexit ("Could not write vtk-Data");
-  }
-}
 
 void write_field (char* currentfield, int width, int height, int timestep) {
   if (timestep == 0){
@@ -288,7 +283,7 @@ int main (int c, char **v) {
   int comm = 99;
     if (rank != 0 && rank < num_tasks-1) {
       // Receive from left worker
-      MPI_Recv(elapsed_time_recv, num_tasks, MPI_DOUBLE,(rank-1), comm, MPI_COMM_WORLD, &status);
+      MPI_Recv(elapsed_time_recv, num_tasks, MPI_DOUBLE,(rank-1), comm, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
       for(int i = 0; i <rank; i ++){
         elapsed_time_send[i] = elapsed_time_recv[i];
       }
@@ -300,7 +295,7 @@ int main (int c, char **v) {
       MPI_Send(elapsed_time_send, num_tasks, MPI_DOUBLE,(rank+1), comm, MPI_COMM_WORLD);
     }
     else{
-      MPI_Recv(elapsed_time_recv, num_tasks, MPI_DOUBLE,(rank-1), comm, MPI_COMM_WORLD, &status);
+      MPI_Recv(elapsed_time_recv, num_tasks, MPI_DOUBLE,(rank-1), comm, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
       for(int i = 0; i <rank; i ++){
         elapsed_time_send[i] = elapsed_time_recv[i];
       }
