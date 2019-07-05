@@ -182,14 +182,14 @@ void game (int width, int height, int num_timesteps, int gsizes[2]) {
   //filling_rank (currentfield, width, height);
 
   int time = 0;
-  //write_field (currentfield, gsizes[X], gsizes[Y], time);
-  write_field (currentfield, width, height, time);
+  write_field (currentfield, gsizes[X], gsizes[Y], time);
+  //write_field (currentfield, width, height, time);
   for (time = 1; time <= num_timesteps; time++) {
     // TODO 2: implement evolve function (see above)
     evolve (currentfield, newfield, width, height);
     //char *towritefield = calloc ((width-2) * (height-2), sizeof(char));
-    write_field (newfield, width, height, time);
-    //write_field (newfield, gsizes[X], gsizes[Y], time);
+    //write_field (newfield, width, height, time);
+    write_field (newfield, gsizes[X], gsizes[Y], time);
     //apply_periodic_boundaries(newfield,width,height);
     // TODO 3: implement SWAP of the fields
     char *temp = currentfield;
@@ -258,7 +258,9 @@ int main (int c, char **v) {
   }
   int startindices[2] = {1,1};
   int memsize[2] = {lsizes[0]+2,lsizes[1]+2};
-
+  for(int i = 0; i < 2; i++){
+    printf("Rank %d: memsize:%d starts %d \n", rank_cart, memsize[i], startindices[i]);
+  }
   double* elapsed_time_send = malloc(sizeof(double)*4);
   double* elapsed_time_recv = malloc(sizeof(double)*4);
   if(rank == 0){
