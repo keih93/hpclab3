@@ -148,26 +148,31 @@ void filling_runner (char * currentfield, int width, int height) {
   if( ((gsizes[0]/2+0) > (coords[0]*lsizes[0])) && ((gsizes[1]/2+1) > (coords[1]*lsizes[1])) ){
     if( ((gsizes[0]/2+0) < (coords[0]*lsizes[0] +lsizes[0])) && ((gsizes[1]/2+1) < (coords[1]*lsizes[1] + lsizes[1])) ){
         currentfield[calcIndex(width, (gsizes[0]/2+0) - (coords[0]*lsizes[0]), (gsizes[1]/2+1)-(coords[1]*lsizes[1]))] = ALIVE;
+        printf("rank %d: index %d",rank_cart,calcIndex(width, (gsizes[0]/2+0) - (coords[0]*lsizes[0]), (gsizes[1]/2+1)-(coords[1]*lsizes[1])));
     }
   }
   if( ((gsizes[0]/2+1) > (coords[0]*lsizes[0])) && ((gsizes[1]/2+2) > (coords[1]*lsizes[1])) ){
     if( ((gsizes[0]/2+1) < (coords[0]*lsizes[0] +lsizes[0])) && ((gsizes[1]/2+2) < (coords[1]*lsizes[1] + lsizes[1])) ){
         currentfield[calcIndex(width, (gsizes[0]/2+1) - (coords[0]*lsizes[0]), (gsizes[1]/2+2)-(coords[1]*lsizes[1]))] = ALIVE;
+        printf("rank %d: index %d",rank_cart,calcIndex(width, (gsizes[0]/2+1) - (coords[0]*lsizes[0]), (gsizes[1]/2+2)-(coords[1]*lsizes[1])));
     }
   }
   if( ((gsizes[0]/2+2) > (coords[0]*lsizes[0])) && ((gsizes[1]/2+0) > (coords[1]*lsizes[1])) ){
     if( ((gsizes[0]/2+2) < (coords[0]*lsizes[0] +lsizes[0])) && ((gsizes[1]/2+0) < (coords[1]*lsizes[1] + lsizes[1])) ){
         currentfield[calcIndex(width, (gsizes[0]/2+2) - (coords[0]*lsizes[0]), (gsizes[1]/2+0)-(coords[1]*lsizes[1]))] = ALIVE;
+        printf("rank %d: index %d",rank_cart,calcIndex(width, (gsizes[0]/2+2) - (coords[0]*lsizes[0]), (gsizes[1]/2+0)-(coords[1]*lsizes[1])));
     }
   }
   if( ((gsizes[0]/2+2) > (coords[0]*lsizes[0])) && ((gsizes[1]/2+1) > (coords[1]*lsizes[1])) ){
     if( ((gsizes[0]/2+2) < (coords[0]*lsizes[0] +lsizes[0])) && ((gsizes[1]/2+1) < (coords[1]*lsizes[1] + lsizes[1])) ){
         currentfield[calcIndex(width, (gsizes[0]/2+2) - (coords[0]*lsizes[0]), (gsizes[1]/2+1)-(coords[1]*lsizes[1]))] = ALIVE;
+        printf("rank %d: index %d",rank_cart,calcIndex(width, (gsizes[0]/2+2) - (coords[0]*lsizes[0]), (gsizes[1]/2+1)-(coords[1]*lsizes[1])));
     }
   }
   if( ((gsizes[0]/2+2) > (coords[0]*lsizes[0])) && ((gsizes[1]/2+2) > (coords[1]*lsizes[1])) ){
     if( ((gsizes[0]/2+2) < (coords[0]*lsizes[0] +lsizes[0])) && ((gsizes[1]/2+2) < (coords[1]*lsizes[1] + lsizes[1])) ){
         currentfield[calcIndex(width, (gsizes[0]/2+2) - (coords[0]*lsizes[0]), (gsizes[1]/2+2)-(coords[1]*lsizes[1]))] = ALIVE;
+        printf("rank %d: index %d",rank_cart,calcIndex(width, (gsizes[0]/2+2) - (coords[0]*lsizes[0]), (gsizes[1]/2+2)-(coords[1]*lsizes[1])));
     }
   }
 }
