@@ -86,44 +86,21 @@ void write_field (char* currentfield, int width, int height, int timestep) {
   }
 
   printf ("Process %d writing timestep %d\n",rank, timestep);
+
   char filename[1024];
-  //"./gol/gol-%05d.vtk"
   snprintf (filename, 1024, "./gol/gol-%05d.vtk", timestep);
-  int local_array_size = width*height;
   MPI_Offset header_offset = (MPI_Offset)strlen(vtk_header);
-  MPI_Offset offset = (MPI_Offset)rank*width;
-    /* TODO Create a new file handle for collective I/O
-     *      Use the global 'file' variable.
-   */
-  /* TODO Set the file view for the file handle using collective I/O
-   *
-   */
-  // rc = ...
 
-  MPI_File_open(MPI_COMM_WORLD,  filename ,MPI_MODE_CREATE | MPI_MODE_WRONLY, MPI_INFO_NULL, &file);
-  /* TODO Write the data using collective I/O
-   *
-   */
-   
-  MPI_File_write_at(file, 0, vtk_header, strlen(vtk_header), MPI_CHAR, MPI_STATUS_IGNORE);
-  MPI_File_set_view(file, offset + header_offset, MPI_CHAR, filetype, "native", MPI_INFO_NULL);
-  MPI_File_write(file, currentfield, offset, MPI_CHAR, &status);
+  MPI_File_delete(filename,MPI_INFO_NULL);
+  MPI_File_open(cart_comm,  filename ,MPI_MODE_CREATE | MPI_MODE_WRONLY, MPI_INFO_NULL, &file);
 
+  if(rank_cart == 0){
+  MPI_File_write(file, vtk_header, strlen(vtk_header), MPI_CHAR, MPI_STATUS_IGNORE);
+  }
+  MPI_File_set_view(file, header_offset, MPI_CHAR, filetype, "native", MPI_INFO_NULL);
+  MPI_File_write_all(file, currentfield,1, memtype, MPI_STATUS_IGNORE);
 
-  /* TODO Close the file handle.
-   *
-   */
-   MPI_File_close(&file);
-   //fclose (file); */
-
-   //FILE *fp;       // The current file handle.
-   //char filename[1024];
-   //snprintf (filename, 1024, "./gol/gol-%05d.vtk", timestep);
-   //fp = fopen (filename, "w");
-   //write_vtk_data (fp, vtk_header, strlen (vtk_header));
-   //write_vtk_data (fp, currentfield, width * height);
-   //fclose (fp);
-   printf ("Process %d finished writing timestep %d\n",rank, timestep);
+  MPI_File_close(&file);
 }
 
 int countLifingsPeriodic(char* currentfield, int x, int y, int w, int h){
@@ -156,6 +133,16 @@ void filling_random (char * currentfield, int width, int height) {
     for (int x = 1; x < width - 1; x++) {
       i = calcIndex(width, x, y);
       currentfield[i] = (rand () < RAND_MAX / 10) ? 1 : 0; ///< init domain randomly
+    }
+  }
+}
+
+void filling_rank (char * currentfield, int width, int height) {
+  int i;
+  for (int y = 1; y < height - 1; y++) {
+    for (int x = 1; x < width - 1; x++) {
+      i = calcIndex(width, x, y);
+      currentfield[i] = rank_cart;
     }
   }
 }
@@ -196,7 +183,8 @@ void game (int width, int height, int num_timesteps, int gsizes[2]) {
 
   // TODO 1: use your favorite filling
   //filling_random (currentfield, width, height);
-  filling_runner (currentfield, width, height);
+  //filling_runner (currentfield, width, height);
+  filling_rank (currentfield, width, height);
 
   int time = 0;
   //write_field (currentfield, gsizes[X], gsizes[Y], time);
@@ -204,9 +192,10 @@ void game (int width, int height, int num_timesteps, int gsizes[2]) {
   for (time = 1; time <= num_timesteps; time++) {
     // TODO 2: implement evolve function (see above)
     evolve (currentfield, newfield, width, height);
+    //char *towritefield = calloc ((width-2) * (height-2), sizeof(char));
     write_field (newfield, width, height, time);
     //write_field (newfield, gsizes[X], gsizes[Y], time);
-    apply_periodic_boundaries(newfield,width,height);
+    //apply_periodic_boundaries(newfield,width,height);
     // TODO 3: implement SWAP of the fields
     char *temp = currentfield;
     currentfield = newfield;
@@ -269,10 +258,11 @@ int main (int c, char **v) {
   int gsizes[2] = {width, height};  // global size of the domain without boundaries
   int lsizes[2] = {width/process_numX, height/process_numY};
   int starts[2] = {coords[0]*lsizes[0],coords[1]*lsizes[1]};
+  for(int i = 0; i < 2; i++){
+    printf("Rank %d: lsizes:%d starts %d \n", rank_cart, lsizes[i], starts[i]);
+  }
+  int startindices[2] = {1,1};
   int memsize[2] = {lsizes[0]+2,lsizes[1]+2};
-  int startsmem[2] = {coords[0]*lsizes[0]+2,coords[1]*lsizes[1]+2};
-  int first = 0;
-
 
   double* elapsed_time_send = malloc(sizeof(double)*4);
   double* elapsed_time_recv = malloc(sizeof(double)*4);
@@ -283,23 +273,15 @@ int main (int c, char **v) {
     }
   }
   START_TIMEMEASUREMENT(measure_game_time);
-  /* TODO create and commit a subarray as a new filetype to describe the local
-   *      worker field as a part of the global field.
-   *      Use the global variable 'filetype'.
-   * HINT: use MPI_Type_create_subarray and MPI_Type_commit functions
-  */
-  printf("%d create filetype\n",rank );
-  MPI_Type_create_subarray(2,gsizes,lsizes,starts, MPI_ORDER_C,MPI_INT,&filetype);
+
+  MPI_Type_create_subarray(2,gsizes,lsizes,starts, MPI_ORDER_C,MPI_CHAR,&filetype);
   MPI_Type_commit(&filetype);
 
-  /* TODO Create a derived datatype that describes the layout of the inner local field
-   *      in the memory buffer that includes the ghost layer (local field).
-   *      This is another subarray datatype!
-   *      Use the global variable 'memtype'.
-  */
-  //MPI_Type_create_subarray(2,gsizes,memsize,starts, MPI_ORDER_C,MPI_INT,&memtype);
-  //MPI_Type_commit(&memtype);
-  game(lsizes[X], lsizes[Y], num_timesteps, gsizes);
+  MPI_Type_create_subarray(2,memsize,lsizes,startindices, MPI_ORDER_C,MPI_CHAR,&memtype);
+  MPI_Type_commit(&memtype);
+
+  game(memsize[X], memsize[Y], num_timesteps, gsizes);
+
   END_TIMEMEASUREMENT(measure_game_time, elapsed_time_recv[rank]);
   elapsed_time_send[rank] = elapsed_time_recv[rank];
   printf("rank: %d time elapsed: %lf sec\n", rank, elapsed_time_recv[rank]);
