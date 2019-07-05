@@ -265,8 +265,10 @@ int main (int c, char **v) {
   MPI_Cart_create(MPI_COMM_WORLD, 2, dims, periods, 0, &cart_comm);
   MPI_Comm_rank(cart_comm, &rank_cart);
   MPI_Cart_coords(cart_comm, rank_cart, 2, coords);
-  gsizes[2] = {width, height};  // global size of the domain without boundaries
-  lsizes[2] = {width/process_numX, height/process_numY};
+  gsizes[0] = width;  // global size of the domain without boundaries
+  gsizes[1] = height;
+  lsizes[0] = width/process_numX;
+  lsizes[1] = height/process_numY;
   int starts[2] = {coords[0]*lsizes[0],coords[1]*lsizes[1]};
   for(int i = 0; i < 2; i++){
     printf("Rank %d: lsizes:%d starts %d \n", rank_cart, lsizes[i], starts[i]);
