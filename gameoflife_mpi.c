@@ -217,6 +217,12 @@ int main (int c, char **v) {
   MPI_Cart_create(MPI_COMM_WORLD, 2, dims, periods, 0, &cart_comm);
   MPI_Comm_rank(cart_comm, &rank_cart);
   MPI_Cart_coords(cart_comm, rank_cart, 2, coords);
+  printf("rank %d\n",rank);
+  printf("size %d\n",size);
+  printf("num_tasks %d\n",num_tasks);
+  printf("rank cart %d\n",rank_cart);
+  printf("coords1 %d\n",coords[0]);
+  printf("coords2 %d\n",coords[1]);
   int gsizes[2] = {width, height};  // global size of the domain without boundaries
   int lsizes[2];
 
