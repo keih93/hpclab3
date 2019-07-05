@@ -218,7 +218,6 @@ int main (int c, char **v) {
   MPI_Comm_rank(cart_comm, &rank_cart);
   MPI_Cart_coords(cart_comm, rank_cart, 2, coords);
   printf("rank %d\n",rank);
-  printf("size %d\n",size);
   printf("num_tasks %d\n",num_tasks);
   printf("rank cart %d\n",rank_cart);
   printf("coords1 %d\n",coords[0]);
