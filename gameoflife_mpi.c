@@ -246,7 +246,7 @@ int main (int c, char **v) {
   MPI_Cart_coords(cart_comm, rank_cart, 2, coords);
   int gsizes[2] = {width, height};  // global size of the domain without boundaries
   int lsizes[2] = {width/process_numX, height/process_numY};
-  int starts[2] = {rank*lsizes[0],rank*lsizes[1]};
+  int starts[2] = {coords[0]*lsizes[0],coords[1]*lsizes[1]};
 
   double* elapsed_time_send = malloc(sizeof(double)*4);
   double* elapsed_time_recv = malloc(sizeof(double)*4);
