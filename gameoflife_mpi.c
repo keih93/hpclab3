@@ -10,6 +10,14 @@
 
 //OPTIONAL: comment this out for console output
 //#define CONSOLE_OUTPUT
+#define START_TIMEMEASUREMENT(name)   struct timeval __FILE__##__func__##name##actualtime; \
+gettimeofday(&__FILE__##__func__##name##actualtime, NULL); \
+double __FILE__##__func__##name##s_time = (double)__FILE__##__func__##name##actualtime.tv_sec+((double)__FILE__##__func__##name##actualtime.tv_usec/1000000.0)
+
+
+#define END_TIMEMEASUREMENT(name, res) gettimeofday(&__FILE__##__func__##name##actualtime, NULL); \
+res = (double)__FILE__##__func__##name##actualtime.tv_sec+((double)__FILE__##__func__##name##actualtime.tv_usec/1000000.0) -__FILE__##__func__##name##s_time
+
 
 #define calcIndex(width, x,y)  ((y)*(width) + (x))
 #define ALIVE 1
@@ -138,7 +146,24 @@ void filling_runner (char * currentfield, int width, int height) {
 
 void apply_periodic_boundaries(char * field, int width, int height){
   //TODO: implement periodic boundary copies
-
+  int i, j, k, l;
+  for (int y = 0; y < height - 1; y++) {
+      i = calcIndex(width, width - 1, y);
+      j = calcIndex(width, 1, y);
+      l = calcIndex(width, 0, y);
+      k = calcIndex(width, width - 2, y);
+      field[i] = field[j];
+      field[l] = field[k];
+  }
+  int a, b, c, d;
+  for (int x = 1; x < width - 1; x++) {
+    a = calcIndex(width, x, height - 1);
+    b = calcIndex(width, x, 1);
+    d = calcIndex(width, x, 0);
+    c = calcIndex(width, x, height - 2);
+    field[a] = field[b];
+    field[d] = field[c];
+  }
 }
 
 void game (int width, int height, int num_timesteps, int gsizes[2]) {
@@ -217,14 +242,18 @@ int main (int c, char **v) {
   MPI_Cart_create(MPI_COMM_WORLD, 2, dims, periods, 0, &cart_comm);
   MPI_Comm_rank(cart_comm, &rank_cart);
   MPI_Cart_coords(cart_comm, rank_cart, 2, coords);
-  printf("rank %d\n",rank);
-  printf("num_tasks %d\n",num_tasks);
-  printf("rank cart %d\n",rank_cart);
-  printf("coords1 %d\n",coords[0]);
-  printf("coords2 %d\n",coords[1]);
   int gsizes[2] = {width, height};  // global size of the domain without boundaries
-  int lsizes[2];
+  int lsizes[2] = {width/process_numX, height/process_numY};
 
+  double* elapsed_time_send = malloc(sizeof(double)*4);
+  double* elapsed_time_recv = malloc(sizeof(double)*4);
+  if(rank == 0){
+  for(int i = 0; i < size; i++){
+    elapsed_time_send[i] = 0;
+    elapsed_time_recv[i] = 0;
+    }
+  }
+  START_TIMEMEASUREMENT(measure_game_time);
   /* TODO create and commit a subarray as a new filetype to describe the local
    *      worker field as a part of the global field.
    *      Use the global variable 'filetype'.
@@ -239,6 +268,37 @@ int main (int c, char **v) {
   */
 
   game(lsizes[X], lsizes[Y], num_timesteps, gsizes);
-
+  END_TIMEMEASUREMENT(measure_game_time, elapsed_time_recv[rank]);
+  elapsed_time_send[rank] = elapsed_time_recv[rank];
+  printf("rank: %d time elapsed: %lf sec\n", rank, elapsed_time_recv[rank]);
+  int comm = 99;
+    if (rank != 0 && rank < size-1) {
+      // Receive from left worker
+      MPI_Recv(elapsed_time_recv, size, MPI_DOUBLE,(rank-1), comm, MPI_COMM_WORLD, &status);
+      for(int i = 0; i <rank; i ++){
+        elapsed_time_send[i] = elapsed_time_recv[i];
+      }
+      // Send to right
+      MPI_Send(elapsed_time_send, size, MPI_DOUBLE,(rank+1), comm, MPI_COMM_WORLD);
+    }
+    else if (rank == 0) {
+      // Send to right
+      MPI_Send(elapsed_time_send, size, MPI_DOUBLE,(rank+1), comm, MPI_COMM_WORLD);
+    }
+    else{
+      MPI_Recv(elapsed_time_recv, size, MPI_DOUBLE,(rank-1), comm, MPI_COMM_WORLD, &status);
+      for(int i = 0; i <rank; i ++){
+        elapsed_time_send[i] = elapsed_time_recv[i];
+      }
+      double max = 0;
+      double average = 0;
+      for(int i = 0; i < size; i++){
+        if(elapsed_time_send[i] > max){
+          max = elapsed_time_send[i];
+        }
+          average = average + elapsed_time_send[i];
+      }
+      printf("Max is %lf. Average is %lf \n", max, average/size);
+    }
   MPI_Finalize();
 }
