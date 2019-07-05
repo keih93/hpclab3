@@ -246,7 +246,7 @@ int main (int c, char **v) {
   MPI_Cart_coords(cart_comm, rank_cart, 2, coords);
   int gsizes[2] = {width, height};  // global size of the domain without boundaries
   int lsizes[2] = {width/process_numX, height/process_numY};
-
+  int starts[2] = {rank*lsizes[0],rank*lsizes[1]};
 
   double* elapsed_time_send = malloc(sizeof(double)*4);
   double* elapsed_time_recv = malloc(sizeof(double)*4);
@@ -262,7 +262,8 @@ int main (int c, char **v) {
    *      Use the global variable 'filetype'.
    * HINT: use MPI_Type_create_subarray and MPI_Type_commit functions
   */
-
+  MPI_Type_create_subarray(2,gsizes,lsizes,starts, MPI_ORDER_C,MPI_INT,&filetype);
+  MPI_Type_commit(&filetype);
 
   /* TODO Create a derived datatype that describes the layout of the inner local field
    *      in the memory buffer that includes the ghost layer (local field).
