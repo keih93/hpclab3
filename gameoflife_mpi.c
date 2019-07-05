@@ -22,6 +22,8 @@ int           rank = 0;            // The current MPI rank in the global communi
 int           rank_cart = 0;       // The current MPI rank in the cart communicator.
 int           num_tasks;           // The number of processes
 
+
+
 MPI_Datatype  filetype;            //
 MPI_Comm      cart_comm;           // Communicator for the cartesian grid
 MPI_File      file;                // A shared file pointer
@@ -136,24 +138,7 @@ void filling_runner (char * currentfield, int width, int height) {
 
 void apply_periodic_boundaries(char * field, int width, int height){
   //TODO: implement periodic boundary copies
-  int i, j, k, l;
-  for (int y = 0; y < height - 1; y++) {
-      i = calcIndex(width, width - 1, y);
-      j = calcIndex(width, 1, y);
-      l = calcIndex(width, 0, y);
-      k = calcIndex(width, width - 2, y);
-      field[i] = field[j];
-      field[l] = field[k];
-  }
-int a, b, c, d;
-  for (int x = 1; x < width - 1; x++) {
-    a = calcIndex(width, x, height - 1);
-    b = calcIndex(width, x, 1);
-    d = calcIndex(width, x, 0);
-    c = calcIndex(width, x, height - 2);
-    field[a] = field[b];
-    field[d] = field[c];
-  }
+
 }
 
 void game (int width, int height, int num_timesteps, int gsizes[2]) {
@@ -225,7 +210,12 @@ int main (int c, char **v) {
 
   /* TODO Create a new cartesian communicator of the worker communicator and get the information.
   */
-
+  int dims[2] = {process_numX, process_numY};
+  int periods[2] = {1,1};
+  int coords[2];
+  MPI_Cart_creat(MPI_COMM_WORLD, 2, dims, periods, 0, &cart_comm);
+  MPI_Comm_rank(cart_comm, &rank_cart);
+  MPI_Cart_coords(cart_comm, rank_cart, 2, coords);
   int gsizes[2] = {width, height};  // global size of the domain without boundaries
   int lsizes[2];
 
