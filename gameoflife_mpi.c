@@ -82,8 +82,6 @@ void write_field (char* currentfield, int width, int height, int timestep) {
     create_vtk_header (vtk_header, width, height, timestep);
   }
 
-  printf ("Process %d writing timestep %d\n",rank, timestep);
-
   char filename[1024];
   snprintf (filename, 1024, "./gol/gol-%05d.vtk", timestep);
   MPI_Offset header_offset = (MPI_Offset)strlen(vtk_header);
@@ -148,31 +146,31 @@ void filling_runner (char * currentfield, int width, int height) {
   if( ((gsizes[0]/2+0) > (coords[0]*lsizes[0])) && ((gsizes[1]/2+1) > (coords[1]*lsizes[1])) ){
     if( ((gsizes[0]/2+0) < (coords[0]*lsizes[0] +lsizes[0])) && ((gsizes[1]/2+1) < (coords[1]*lsizes[1] + lsizes[1])) ){
         currentfield[calcIndex(width, (gsizes[0]/2+0) - (coords[0]*lsizes[0]), (gsizes[1]/2+1)-(coords[1]*lsizes[1]))] = ALIVE;
-        printf("rank %d: index %d",rank_cart,calcIndex(width, (gsizes[0]/2+0) - (coords[0]*lsizes[0]), (gsizes[1]/2+1)-(coords[1]*lsizes[1])));
+        printf("rank %d: first cell gindex %d %d lindex %d %d \n",rank_cart,gsizes[0]/2+0,gsizes[1]/2+1,coords[0]*lsizes[0],coords[1]*lsizes[1]);
     }
   }
   if( ((gsizes[0]/2+1) > (coords[0]*lsizes[0])) && ((gsizes[1]/2+2) > (coords[1]*lsizes[1])) ){
     if( ((gsizes[0]/2+1) < (coords[0]*lsizes[0] +lsizes[0])) && ((gsizes[1]/2+2) < (coords[1]*lsizes[1] + lsizes[1])) ){
         currentfield[calcIndex(width, (gsizes[0]/2+1) - (coords[0]*lsizes[0]), (gsizes[1]/2+2)-(coords[1]*lsizes[1]))] = ALIVE;
-        printf("rank %d: index %d",rank_cart,calcIndex(width, (gsizes[0]/2+1) - (coords[0]*lsizes[0]), (gsizes[1]/2+2)-(coords[1]*lsizes[1])));
+        printf("rank %d: second cell gindex %d %d lindex %d %d \n",rank_cart,gsizes[0]/2+1,gsizes[1]/2+2,coords[0]*lsizes[0],coords[1]*lsizes[1]);
     }
   }
   if( ((gsizes[0]/2+2) > (coords[0]*lsizes[0])) && ((gsizes[1]/2+0) > (coords[1]*lsizes[1])) ){
     if( ((gsizes[0]/2+2) < (coords[0]*lsizes[0] +lsizes[0])) && ((gsizes[1]/2+0) < (coords[1]*lsizes[1] + lsizes[1])) ){
         currentfield[calcIndex(width, (gsizes[0]/2+2) - (coords[0]*lsizes[0]), (gsizes[1]/2+0)-(coords[1]*lsizes[1]))] = ALIVE;
-        printf("rank %d: index %d",rank_cart,calcIndex(width, (gsizes[0]/2+2) - (coords[0]*lsizes[0]), (gsizes[1]/2+0)-(coords[1]*lsizes[1])));
+        printf("rank %d: third cell gindex %d %d lindex %d %d \n",rank_cart,gsizes[0]/2+2,gsizes[1]/2+0,coords[0]*lsizes[0],coords[1]*lsizes[1]);
     }
   }
   if( ((gsizes[0]/2+2) > (coords[0]*lsizes[0])) && ((gsizes[1]/2+1) > (coords[1]*lsizes[1])) ){
     if( ((gsizes[0]/2+2) < (coords[0]*lsizes[0] +lsizes[0])) && ((gsizes[1]/2+1) < (coords[1]*lsizes[1] + lsizes[1])) ){
         currentfield[calcIndex(width, (gsizes[0]/2+2) - (coords[0]*lsizes[0]), (gsizes[1]/2+1)-(coords[1]*lsizes[1]))] = ALIVE;
-        printf("rank %d: index %d",rank_cart,calcIndex(width, (gsizes[0]/2+2) - (coords[0]*lsizes[0]), (gsizes[1]/2+1)-(coords[1]*lsizes[1])));
+        printf("rank %d: fourth cell gindex %d %d lindex %d %d \n",rank_cart,gsizes[0]/2+2,gsizes[1]/2+1,coords[0]*lsizes[0],coords[1]*lsizes[1]);
     }
   }
   if( ((gsizes[0]/2+2) > (coords[0]*lsizes[0])) && ((gsizes[1]/2+2) > (coords[1]*lsizes[1])) ){
     if( ((gsizes[0]/2+2) < (coords[0]*lsizes[0] +lsizes[0])) && ((gsizes[1]/2+2) < (coords[1]*lsizes[1] + lsizes[1])) ){
         currentfield[calcIndex(width, (gsizes[0]/2+2) - (coords[0]*lsizes[0]), (gsizes[1]/2+2)-(coords[1]*lsizes[1]))] = ALIVE;
-        printf("rank %d: index %d",rank_cart,calcIndex(width, (gsizes[0]/2+2) - (coords[0]*lsizes[0]), (gsizes[1]/2+2)-(coords[1]*lsizes[1])));
+        printf("rank %d: fifth cell gindex %d %d lindex %d %d \n",rank_cart,gsizes[0]/2+2, gsizes[1]/2+2,coords[0]*lsizes[0],coords[1]*lsizes[1]);
     }
   }
 }
@@ -275,14 +273,8 @@ int main (int c, char **v) {
   lsizes[0] = width/process_numX;
   lsizes[1] = height/process_numY;
   int starts[2] = {coords[0]*lsizes[0],coords[1]*lsizes[1]};
-  for(int i = 0; i < 2; i++){
-    printf("Rank %d: lsizes:%d starts %d \n", rank_cart, lsizes[i], starts[i]);
-  }
   int startindices[2] = {1,1};
   int memsize[2] = {lsizes[0]+2,lsizes[1]+2};
-  for(int i = 0; i < 2; i++){
-    printf("Rank %d: memsize:%d starts %d \n", rank_cart, memsize[i], startindices[i]);
-  }
   double* elapsed_time_send = malloc(sizeof(double)*4);
   double* elapsed_time_recv = malloc(sizeof(double)*4);
   if(rank == 0){
