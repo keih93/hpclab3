@@ -143,31 +143,31 @@ void filling_rank (char * currentfield, int width, int height) {
 }
 
 void filling_runner (char * currentfield, int width, int height) {
-  if( ((gsizes[0]/2+0) > (coords[0]*lsizes[0])) && ((gsizes[1]/2+1) > (coords[1]*lsizes[1])) ){
+  if( ((gsizes[0]/2+0) >= (coords[0]*lsizes[0])) && ((gsizes[1]/2+1) >= (coords[1]*lsizes[1])) ){
     if( ((gsizes[0]/2+0) < (coords[0]*lsizes[0] +lsizes[0])) && ((gsizes[1]/2+1) < (coords[1]*lsizes[1] + lsizes[1])) ){
         currentfield[calcIndex(width, (gsizes[0]/2+0) - (coords[0]*lsizes[0]), (gsizes[1]/2+1)-(coords[1]*lsizes[1]))] = ALIVE;
         printf("rank %d: first cell gindex %d %d lindex %d %d \n",rank_cart,gsizes[0]/2+0,gsizes[1]/2+1,coords[0]*lsizes[0],coords[1]*lsizes[1]);
     }
   }
-  if( ((gsizes[0]/2+1) > (coords[0]*lsizes[0])) && ((gsizes[1]/2+2) > (coords[1]*lsizes[1])) ){
+  if( ((gsizes[0]/2+1) >= (coords[0]*lsizes[0])) && ((gsizes[1]/2+2) >= (coords[1]*lsizes[1])) ){
     if( ((gsizes[0]/2+1) < (coords[0]*lsizes[0] +lsizes[0])) && ((gsizes[1]/2+2) < (coords[1]*lsizes[1] + lsizes[1])) ){
         currentfield[calcIndex(width, (gsizes[0]/2+1) - (coords[0]*lsizes[0]), (gsizes[1]/2+2)-(coords[1]*lsizes[1]))] = ALIVE;
         printf("rank %d: second cell gindex %d %d lindex %d %d \n",rank_cart,gsizes[0]/2+1,gsizes[1]/2+2,coords[0]*lsizes[0],coords[1]*lsizes[1]);
     }
   }
-  if( ((gsizes[0]/2+2) > (coords[0]*lsizes[0])) && ((gsizes[1]/2+0) > (coords[1]*lsizes[1])) ){
+  if( ((gsizes[0]/2+2) >= (coords[0]*lsizes[0])) && ((gsizes[1]/2+0) >= (coords[1]*lsizes[1])) ){
     if( ((gsizes[0]/2+2) < (coords[0]*lsizes[0] +lsizes[0])) && ((gsizes[1]/2+0) < (coords[1]*lsizes[1] + lsizes[1])) ){
         currentfield[calcIndex(width, (gsizes[0]/2+2) - (coords[0]*lsizes[0]), (gsizes[1]/2+0)-(coords[1]*lsizes[1]))] = ALIVE;
         printf("rank %d: third cell gindex %d %d lindex %d %d \n",rank_cart,gsizes[0]/2+2,gsizes[1]/2+0,coords[0]*lsizes[0],coords[1]*lsizes[1]);
     }
   }
-  if( ((gsizes[0]/2+2) > (coords[0]*lsizes[0])) && ((gsizes[1]/2+1) > (coords[1]*lsizes[1])) ){
+  if( ((gsizes[0]/2+2) >= (coords[0]*lsizes[0])) && ((gsizes[1]/2+1) >= (coords[1]*lsizes[1])) ){
     if( ((gsizes[0]/2+2) < (coords[0]*lsizes[0] +lsizes[0])) && ((gsizes[1]/2+1) < (coords[1]*lsizes[1] + lsizes[1])) ){
         currentfield[calcIndex(width, (gsizes[0]/2+2) - (coords[0]*lsizes[0]), (gsizes[1]/2+1)-(coords[1]*lsizes[1]))] = ALIVE;
         printf("rank %d: fourth cell gindex %d %d lindex %d %d \n",rank_cart,gsizes[0]/2+2,gsizes[1]/2+1,coords[0]*lsizes[0],coords[1]*lsizes[1]);
     }
   }
-  if( ((gsizes[0]/2+2) > (coords[0]*lsizes[0])) && ((gsizes[1]/2+2) > (coords[1]*lsizes[1])) ){
+  if( ((gsizes[0]/2+2) >= (coords[0]*lsizes[0])) && ((gsizes[1]/2+2) >= (coords[1]*lsizes[1])) ){
     if( ((gsizes[0]/2+2) < (coords[0]*lsizes[0] +lsizes[0])) && ((gsizes[1]/2+2) < (coords[1]*lsizes[1] + lsizes[1])) ){
         currentfield[calcIndex(width, (gsizes[0]/2+2) - (coords[0]*lsizes[0]), (gsizes[1]/2+2)-(coords[1]*lsizes[1]))] = ALIVE;
         printf("rank %d: fifth cell gindex %d %d lindex %d %d \n",rank_cart,gsizes[0]/2+2, gsizes[1]/2+2,coords[0]*lsizes[0],coords[1]*lsizes[1]);
