@@ -7,6 +7,7 @@
 #include <sys/types.h>
 #include <stdbool.h>
 #include <mpi.h>
+#include <sys/time.h>
 
 //OPTIONAL: comment this out for console output
 //#define CONSOLE_OUTPUT
