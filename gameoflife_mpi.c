@@ -194,6 +194,7 @@ void game (int width, int height, int num_timesteps, int gsizes[2]) {
 
 int main (int c, char **v) {
 
+  MPI_Status status;
   MPI_Init(&c, &v);
 
   int width, height, num_timesteps;
@@ -245,11 +246,11 @@ int main (int c, char **v) {
   int gsizes[2] = {width, height};  // global size of the domain without boundaries
   int lsizes[2] = {width/process_numX, height/process_numY};
 
-  MPI_Status status;
+
   double* elapsed_time_send = malloc(sizeof(double)*4);
   double* elapsed_time_recv = malloc(sizeof(double)*4);
   if(rank == 0){
-  for(int i = 0; i < size; i++){
+  for(int i = 0; i < num_tasks; i++){
     elapsed_time_send[i] = 0;
     elapsed_time_recv[i] = 0;
     }
