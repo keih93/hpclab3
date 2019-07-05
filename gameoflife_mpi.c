@@ -178,8 +178,8 @@ void game (int width, int height, int num_timesteps, int gsizes[2]) {
 
   // TODO 1: use your favorite filling
   //filling_random (currentfield, width, height);
-  filling_runner (currentfield, width, height);
-  //filling_rank (currentfield, width, height);
+  //filling_runner (currentfield, width, height);
+  filling_rank (currentfield, width, height);
 
   int time = 0;
   write_field (currentfield, gsizes[X], gsizes[Y], time);
