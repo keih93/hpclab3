@@ -92,18 +92,19 @@ void write_field (char* currentfield, int width, int height, int timestep) {
    *
    */
   // rc = ...
-  MPI_File_open(MPI_COMM_WORLD, "/pfs/datafile",MPI_MODE_CREATE | MPI_MODE_WRONLY, MPI_INFO_NULL, &file);
+  MPI_File_open(MPI_COMM_WORLD,  "./gol/gol-%05d.vtk" ,MPI_MODE_CREATE | MPI_MODE_WRONLY, MPI_INFO_NULL, &file);
   MPI_File_set_view(file, 0, MPI_INT, filetype, "native", MPI_INFO_NULL);
   /* TODO Write the data using collective I/O
    *
    */
    int local_array_size = width*height;
    MPI_File_write_all(file, currentfield, local_array_size, MPI_INT, &status);
-   MPI_File_close(&file);
+
 
   /* TODO Close the file handle.
    *
    */
+   MPI_File_close(&file);
 }
 
 int countLifingsPeriodic(char* currentfield, int x, int y, int w, int h){
