@@ -213,7 +213,7 @@ int main (int c, char **v) {
   int dims[2] = {process_numX, process_numY};
   int periods[2] = {1,1};
   int coords[2];
-  MPI_Cart_creat(MPI_COMM_WORLD, 2, dims, periods, 0, &cart_comm);
+  MPI_Cart_create(MPI_COMM_WORLD, 2, dims, periods, 0, &cart_comm);
   MPI_Comm_rank(cart_comm, &rank_cart);
   MPI_Cart_coords(cart_comm, rank_cart, 2, coords);
   int gsizes[2] = {width, height};  // global size of the domain without boundaries
