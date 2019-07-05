@@ -37,7 +37,7 @@ MPI_Datatype  filetype;            //
 MPI_Comm      cart_comm;           // Communicator for the cartesian grid
 MPI_File      file;                // A shared file pointer
 MPI_Datatype  memtype;             // A new created type for the inner and outer data including the ghost layer
-
+MPI_Status status;
 
 
 void myexit (const char * s, ...) {
@@ -92,7 +92,7 @@ void write_field (char* currentfield, int width, int height, int timestep) {
    *
    */
   // rc = ...
-  MPI_File_open(MPI_COMM_WORLD, "/pfs/datafile",MPI_MODE_CREATE | MPI_MODE_WRONLY, 60 MPI_INFO_NULL, &file);
+  MPI_File_open(MPI_COMM_WORLD, "/pfs/datafile",MPI_MODE_CREATE | MPI_MODE_WRONLY, MPI_INFO_NULL, &file);
   MPI_File_set_view(file, 0, MPI_INT, filetype, "native", MPI_INFO_NULL);
   /* TODO Write the data using collective I/O
    *
@@ -198,7 +198,6 @@ void game (int width, int height, int num_timesteps, int gsizes[2]) {
 
 int main (int c, char **v) {
 
-  MPI_Status status;
   MPI_Init(&c, &v);
 
   int width, height, num_timesteps;
