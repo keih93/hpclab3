@@ -191,6 +191,7 @@ int main (int c, char **v) {
 
   }
   else {
+    printf("%d\n",c );
    myexit("Too less arguments");
   }
 
