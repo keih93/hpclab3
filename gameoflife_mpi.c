@@ -187,9 +187,9 @@ void filling_runner (char * currentfield, int width, int height) {
 
 void apply_periodic_boundaries(char * field, int width, int height){
   //TODO: implement periodic boundary copies
-  char sendtop[width+1], sendbot[width+1], sendleft[height+1],sendright[height+1];
+  char sendtop[width+2], sendbot[width+2], sendleft[height+2],sendright[height+2];
 
-  char recvcells[4][width+1]; //[width+1], recvbot[width+1], recvleft[height+1],recvright[height+1];
+  char recvcells[4][width+2]; //[width+1], recvbot[width+1], recvleft[height+1],recvright[height+1];
   int toprank, botrank, leftrank, rightrank;
   int topcoords[2], botcoords[2], leftcoords[2], rightcoords[2];
   int maxcoords[2];
@@ -238,6 +238,8 @@ void apply_periodic_boundaries(char * field, int width, int height){
   }
   sendleft[height] = 'l';
   sendright[height] = 'r';
+  sendleft[height+1] = (char) rank_cart;
+  sendright[height+1] = (char) rank_cart;
   for (int x = 0; x < width - 1; x++) {
     int b = calcIndex(width, x, 1);
     int c = calcIndex(width, x, height - 2);
@@ -246,9 +248,9 @@ void apply_periodic_boundaries(char * field, int width, int height){
   }
   sendbot[width] = 'b';
   sendtop[width] = 't';
-  if(rank_cart == 3){
-    printf("top %d bot %d left %d right %d\n",toprank, botrank, leftrank, rightrank);
-  }
+  sendbot[width+1] = (char) rank_cart;
+  sendtop[width+1] = (char) rank_cart;
+
     MPI_Request request[8];
     MPI_Status status[8];
     MPI_Isend(sendtop, width, MPI_CHAR, toprank, 1, cart_comm, &(request[0]));
@@ -261,7 +263,10 @@ void apply_periodic_boundaries(char * field, int width, int height){
     MPI_Irecv(recvcells[2], height, MPI_CHAR, leftrank, 1, cart_comm, &(request[6]));
     MPI_Irecv(recvcells[3], height, MPI_CHAR, rightrank, 1, cart_comm, &(request[7]));
     MPI_Waitall(8, request, status);
-
+    if(rank_cart == 3){
+      printf("top %s bot %s left %s right %s\n",recvcells[0][width]
+      +recvcells[0][width+1], recvcells[1][width] +recvcells[1][width+1], recvcells[2][width] +recvcells[2][width+1], recvcells[3][width] +recvcells[3][width+1]);
+    }
   for(int i = 0; i < 4; i++){
     if(recvcells[i][width] == 'b'){
       for (int x = 0; x < width - 1; x++) {
@@ -295,7 +300,7 @@ void game (int width, int height, int num_timesteps, int gsizes[2]) {
   char *newfield = calloc (width * height, sizeof(char));
 
   //filling_random (currentfield, width, height);
-  if(rank_cart == 1)
+  if(rank_cart == 3)
   filling_runner1 (currentfield, width, height);
   //filling_rank (currentfield, width, height);
   apply_periodic_boundaries(currentfield,width,height);
