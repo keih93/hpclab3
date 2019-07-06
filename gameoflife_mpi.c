@@ -250,7 +250,7 @@ void apply_periodic_boundaries(char * field, int width, int height){
   sendtop[width] = 't';
   sendbot[width+1] = rank_cart;
   sendtop[width+1] = rank_cart;
-printf("hier \n", );
+printf("hier \n");
     MPI_Request request[8];
     MPI_Status status[8];
     MPI_Isend(sendtop, width+2, MPI_CHAR, toprank, 1, cart_comm, &(request[0]));
