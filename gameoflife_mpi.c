@@ -264,8 +264,7 @@ void apply_periodic_boundaries(char * field, int width, int height){
     MPI_Irecv(recvcells[3], height+2, MPI_CHAR, rightrank, 2, cart_comm, &(request[7]));
     MPI_Waitall(8, request, status);
     if(rank_cart == 3){
-      printf("top %s bot %s left %s right %s\n",recvcells[0][width]
-      +recvcells[0][width+1], recvcells[1][width] +recvcells[1][width+1], recvcells[2][width] +recvcells[2][width+1], recvcells[3][width] +recvcells[3][width+1]);
+      printf("top %c %c bot %c %c left %c %c right %c %c\n",recvcells[0][width], recvcells[0][width+1], recvcells[1][width], recvcells[1][width+1], recvcells[2][width], recvcells[2][width+1], recvcells[3][width], recvcells[3][width+1]);
     }
   for(int i = 0; i < 4; i++){
     if(recvcells[i][width] == 'b'){
