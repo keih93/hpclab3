@@ -220,25 +220,44 @@ void apply_periodic_boundaries(char * field, int width, int height){
     leftcoords[1]=coords[1];
     MPI_Cart_rank(cart_comm, leftcoords,&leftrank);
   }
-    printf("rank %d coords %d %d toprank %d botrank %d leftrank %d rightrank %d \n",rank_cart,coords[0], coords[1], toprank, botrank, leftrank, rightrank);
-
-  /*for (int y = 0; y < height - 1; y++) {
-      i = calcIndex(width, width - 1, y);
-      j = calcIndex(width, 1, y);
-      l = calcIndex(width, 0, y);
-      k = calcIndex(width, width - 2, y);
-      field[i] = field[j];
-      field[l] = field[k];
+  for (int y = 0; y < height - 1; y++) {
+      int j = calcIndex(width, 1, y);
+      int k = calcIndex(width, width - 2, y);
+      sendleft[y] = field[j];
+      sendright[y] = field[k];
   }
-  int a, b, c, d;
   for (int x = 1; x < width - 1; x++) {
-    a = calcIndex(width, x, height - 1);
-    b = calcIndex(width, x, 1);
-    d = calcIndex(width, x, 0);
-    c = calcIndex(width, x, height - 2);
-    field[a] = field[b];
-    field[d] = field[c];
-  }*/
+    int b = calcIndex(width, x, 1);
+    int c = calcIndex(width, x, height - 2);
+    sendbot[x] = field[b];
+    sendtop[x] = field[c];
+  }
+
+    MPI_Request request[8];
+    MPI_Status status[8];
+    MPI_Isend(sendtop, width, MPI_CHAR, toprank, 1, cart_comm, &(request[0]));
+    MPI_Isend(sendbot, width, MPI_CHAR, botrank, 1, cart_comm, &(request[1]));
+    MPI_Isend(sendleft, height, MPI_CHAR, leftrank, 1, cart_comm, &(request[2]));
+    MPI_Isend(sendright, height, MPI_CHAR, rightrank, 1, cart_comm, &(request[3]));
+
+    MPI_Irecv(recvtop, width, MPI_CHAR, toprank, 1, cart_comm, &(request[4]));
+    MPI_Irecv(recvbot, width, MPI_CHAR, botrank, 1, cart_comm, &(request[5]));
+    MPI_Irecv(recvleft, height, MPI_CHAR, leftrank, 1, cart_comm, &(request[6]));
+    MPI_Irecv(recvright, height, MPI_CHAR, rightrank, 1, cart_comm, &(request[7]));
+    MPI_Waitall(8, request, status);
+
+  for (int y = 0; y < height - 1; y++) {
+      int i = calcIndex(width, width - 1, y);
+      int l = calcIndex(width, 0, y);
+      field[i] = recvright[y];
+      field[l] = recvleft[y];
+  }
+  for (int x = 1; x < width - 1; x++) {
+    int a = calcIndex(width, x, height - 1);
+    int d = calcIndex(width, x, 0);
+    field[a] = recvtop[x];
+    field[d] = recvbot[x];
+  }
 }
 
 void game (int width, int height, int num_timesteps, int gsizes[2]) {
@@ -254,7 +273,7 @@ void game (int width, int height, int num_timesteps, int gsizes[2]) {
   for (time = 1; time <= num_timesteps; time++) {
     evolve (currentfield, newfield, width, height);
     write_field (newfield, gsizes[X], gsizes[Y], time);
-    //apply_periodic_boundaries(newfield,width,height);
+    apply_periodic_boundaries(newfield,width,height);
     char *temp = currentfield;
     currentfield = newfield;
     newfield = temp;
