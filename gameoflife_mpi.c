@@ -142,6 +142,16 @@ void filling_rank (char * currentfield, int width, int height) {
   }
 }
 
+void filling_runner1 (char * currentfield, int width, int height) {
+  int offset_x = width/3;
+  int offset_y = height/2;
+  currentfield[calcIndex(width, offset_x+0, offset_y+1)] = ALIVE;
+  currentfield[calcIndex(width, offset_x+1, offset_y+2)] = ALIVE;
+  currentfield[calcIndex(width, offset_x+2, offset_y+0)] = ALIVE;
+  currentfield[calcIndex(width, offset_x+2, offset_y+1)] = ALIVE;
+  currentfield[calcIndex(width, offset_x+2, offset_y+2)] = ALIVE;
+}
+
 void filling_runner (char * currentfield, int width, int height) {
   if( ((gsizes[0]/2+0) >= (coords[0]*lsizes[0])) && ((gsizes[1]/2+1) >= (coords[1]*lsizes[1])) ){
     if( ((gsizes[0]/2+0) < (coords[0]*lsizes[0] +lsizes[0])) && ((gsizes[1]/2+1) < (coords[1]*lsizes[1] + lsizes[1])) ){
@@ -285,7 +295,8 @@ void game (int width, int height, int num_timesteps, int gsizes[2]) {
   char *newfield = calloc (width * height, sizeof(char));
 
   //filling_random (currentfield, width, height);
-  filling_runner (currentfield, width, height);
+  if(rank_cart == 0)
+  filling_runner1 (currentfield, width, height);
   //filling_rank (currentfield, width, height);
   apply_periodic_boundaries(currentfield,width,height);
   int time = 0;
