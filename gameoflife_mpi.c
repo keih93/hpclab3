@@ -266,7 +266,7 @@ void apply_periodic_boundaries(char * field, int width, int height){
       field[i] = recvright[y];
       field[l] = recvleft[y];
   }
-  for (int x = 1; x < width - 1; x++) {
+  for (int x = 0; x < width - 1; x++) {
     int a = calcIndex(width, x, height - 1);
     int d = calcIndex(width, x, 0);
     field[a] = recvtop[x];
