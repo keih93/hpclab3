@@ -238,8 +238,8 @@ void apply_periodic_boundaries(char * field, int width, int height){
   }
   sendleft[height] = 'l';
   sendright[height] = 'r';
-  sendleft[height+1] = rank_cart;
-  sendright[height+1] = rank_cart;
+  //sendleft[height+1] = rank_cart;
+  //sendright[height+1] = rank_cart;
   for (int x = 0; x < width - 1; x++) {
     int b = calcIndex(width, x, 1);
     int c = calcIndex(width, x, height - 2);
@@ -248,8 +248,8 @@ void apply_periodic_boundaries(char * field, int width, int height){
   }
   sendbot[width] = 'b';
   sendtop[width] = 't';
-  sendbot[width+1] = rank_cart;
-  sendtop[width+1] = rank_cart;
+  //sendbot[width+1] = rank_cart;
+  //sendtop[width+1] = rank_cart;
 printf("hier \n");
     MPI_Request request[8];
     MPI_Status status[8];
