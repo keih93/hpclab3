@@ -244,22 +244,7 @@ void apply_periodic_boundaries(char * field, int width, int height){
     MPI_Irecv(recvleft, height, MPI_CHAR, leftrank, 1, cart_comm, &(request[6]));
     MPI_Irecv(recvright, height, MPI_CHAR, rightrank, 1, cart_comm, &(request[7]));
     MPI_Waitall(8, request, status);
-    for (int y = 0; y < height - 1; y++) {
-      printf("%d ",recvright[y] );
-    }
-      printf("\n");
-    for (int y = 0; y < height - 1; y++) {
-      printf("%d ",recvleft[y] );
-    }
-    printf("\n");
-    for (int x = 0; x < width - 1; x++) {
-      printf("%d ",recvtop[x] );
-    }
-    printf("\n");
-    for (int x = 0; x < width - 1; x++) {
-      printf("%d ",recvbot[x] );
-    }
-    printf("\n");
+    
   for (int y = 0; y < height - 1; y++) {
       int i = calcIndex(width, width - 1, y);
       int l = calcIndex(width, 0, y);
