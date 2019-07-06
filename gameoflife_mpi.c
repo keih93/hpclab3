@@ -236,50 +236,50 @@ void apply_periodic_boundaries(char * field, int width, int height){
     for(int i = 0; i < num_tasks; i++){
       if(sendrank[i] % 2 != 0){
         sizeofbuffer = sizeof(sendcells[i]) / sizeof(sendcells[i][0]);
-        MPI_Send(sendcells[i], sizeofbuffer, MPI_CHAR,sendrank[i], 1, cart_comm);
+        MPI_Send(sendcells[i], sizeof(sendcells[i]/sendcells[i][0], MPI_CHAR,sendrank[i], 1, cart_comm);
       }
     }
     for(int i = 0; i < num_tasks; i++){
       if(sendrank[i] % 2 != 0){
         sizeofbuffer = sizeof(sendcells[i]) / sizeof(sendcells[i][0]);
-        MPI_Recv(recvcells[i], sizeofbuffer, MPI_CHAR,sendrank[i], 2, cart_comm, MPI_STATUS_IGNORE);
+        MPI_Recv(recvcells[i], sendcells[i]/sendcells[i][0], MPI_CHAR,sendrank[i], 2, cart_comm, MPI_STATUS_IGNORE);
       }
     }
     for(int i = 0; i < num_tasks; i++){
       if(sendrank[i] % 2 == 0){
         sizeofbuffer = sizeof(sendcells[i]) / sizeof(sendcells[i][0]);
-        MPI_Send(sendcells[i], sizeofbuffer, MPI_CHAR,sendrank[i], 1, cart_comm);
+        MPI_Send(sendcells[i], sizeof(sendcells[i]/sendcells[i][0], MPI_CHAR,sendrank[i], 1, cart_comm);
       }
     }
     for(int i = 0; i < num_tasks; i++){
       if(sendrank[i] % 2 != 0){
         sizeofbuffer = sizeof(sendcells[i]) / sizeof(sendcells[i][0]);
-        MPI_Recv(recvcells[i], sizeofbuffer, MPI_CHAR,sendrank[i], 2, cart_comm, MPI_STATUS_IGNORE);
+        MPI_Recv(recvcells[i], sendcells[i]/sendcells[i][0], MPI_CHAR,sendrank[i], 2, cart_comm, MPI_STATUS_IGNORE);
       }
     }
   }else{
     for(int i = 0; i < num_tasks; i++){
       if(sendrank[i] % 2 != 0){
         sizeofbuffer = sizeof(sendcells[i]) / sizeof(sendcells[i][0]);
-        MPI_Recv(recvcells[i], sizeofbuffer, MPI_CHAR,sendrank[i], 2, cart_comm, MPI_STATUS_IGNORE);
+        MPI_Recv(recvcells[i], sendcells[i]/sendcells[i][0], MPI_CHAR,sendrank[i], 2, cart_comm, MPI_STATUS_IGNORE);
       }
     }
     for(int i = 0; i < num_tasks; i++){
       if(sendrank[i] % 2 == 0){
         sizeofbuffer = sizeof(sendcells[i]) / sizeof(sendcells[i][0]);
-        MPI_Send(sendcells[i], sizeofbuffer, MPI_CHAR,sendrank[i], 1, cart_comm);
+        MPI_Send(sendcells[i], sizeof(sendcells[i]/sendcells[i][0], MPI_CHAR,sendrank[i], 1, cart_comm);
       }
     }
     for(int i = 0; i < num_tasks; i++){
       if(sendrank[i] % 2 != 0){
         sizeofbuffer = sizeof(sendcells[i]) / sizeof(sendcells[i][0]);
-        MPI_Recv(recvcells[i], sizeofbuffer, MPI_CHAR,sendrank[i], 2, cart_comm, MPI_STATUS_IGNORE);
+        MPI_Recv(recvcells[i], sendcells[i]/sendcells[i][0], MPI_CHAR,sendrank[i], 2, cart_comm, MPI_STATUS_IGNORE);
       }
     }
     for(int i = 0; i < num_tasks; i++){
       if(sendrank[i] % 2 != 0){
         sizeofbuffer = sizeof(sendcells[i]) / sizeof(sendcells[i][0]);
-        MPI_Send(sendcells[i], sizeofbuffer, MPI_CHAR,sendrank[i], 1, cart_comm);
+        MPI_Send(sendcells[i], sizeof(sendcells[i]/sendcells[i][0], MPI_CHAR,sendrank[i], 1, cart_comm);
       }
     }
   }
