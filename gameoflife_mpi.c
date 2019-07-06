@@ -232,46 +232,44 @@ void apply_periodic_boundaries(char * field, int width, int height){
     sendtop[x] = field[c];
   }
 
-    MPI_Request request[8];
-    MPI_Status status[8];
+    MPI_Request request[2];
+    MPI_Status status[2];
     MPI_Isend(sendtop, width, MPI_CHAR, toprank, 1, cart_comm, &(request[0]));
-    MPI_Isend(sendbot, width, MPI_CHAR, botrank, 1, cart_comm, &(request[1]));
-    MPI_Isend(sendleft, height, MPI_CHAR, leftrank, 1, cart_comm, &(request[2]));
-    MPI_Isend(sendright, height, MPI_CHAR, rightrank, 1, cart_comm, &(request[3]));
-
-    MPI_Irecv(recvtop, width, MPI_CHAR, toprank, 1, cart_comm, &(request[4]));
-    MPI_Irecv(recvbot, width, MPI_CHAR, botrank, 1, cart_comm, &(request[5]));
-    MPI_Irecv(recvleft, height, MPI_CHAR, leftrank, 1, cart_comm, &(request[6]));
-    MPI_Irecv(recvright, height, MPI_CHAR, rightrank, 1, cart_comm, &(request[7]));
-    MPI_Waitall(8, request, status);
-    for (int y = 0; y < height - 1; y++) {
-      printf("%d ",recvright[y] );
-    }
-      printf("\n");
-    for (int y = 0; y < height - 1; y++) {
-      printf("%d ",recvleft[y] );
-    }
-    printf("\n");
+    MPI_Irecv(recvbot, width, MPI_CHAR, botrank, 1, cart_comm, &(request[1]));
+    MPI_Waitall(2, request, status);
     for (int x = 0; x < width - 1; x++) {
-      printf("%d ",recvtop[x] );
+      int d = calcIndex(width, x, 0);
+      field[d] = recvbot[x];
     }
-    printf("\n");
+    MPI_Request request[2];
+    MPI_Status status[2];
+    MPI_Isend(sendbot, width, MPI_CHAR, botrank, 1, cart_comm, &(request[0]));
+    MPI_Irecv(recvtop, width, MPI_CHAR, toprank, 1, cart_comm, &(request[1]));
+    MPI_Waitall(2, request, status);
     for (int x = 0; x < width - 1; x++) {
-      printf("%d ",recvbot[x] );
+      int a = calcIndex(width, x, height - 1);
+      field[a] = recvtop[x];
     }
-    printf("\n");
-  for (int y = 0; y < height - 1; y++) {
-      int i = calcIndex(width, width - 1, y);
-      int l = calcIndex(width, 0, y);
-      field[i] = recvright[y];
-      field[l] = recvleft[y];
-  }
-  for (int x = 0; x < width - 1; x++) {
-    int a = calcIndex(width, x, height - 1);
-    int d = calcIndex(width, x, 0);
-    field[a] = recvtop[x];
-    field[d] = recvbot[x];
-  }
+    MPI_Request request[2];
+    MPI_Status status[2];
+    MPI_Isend(sendleft, height, MPI_CHAR, leftrank, 1, cart_comm, &(request[0]));
+    MPI_Irecv(recvright, height, MPI_CHAR, rightrank, 1, cart_comm, &(request[1]));
+    MPI_Waitall(2, request, status);
+    for (int y = 0; y < height - 1; y++) {
+        int i = calcIndex(width, width - 1, y);
+        int l = calcIndex(width, 0, y);
+        field[i] = recvright[y];
+    }
+    MPI_Request request[2];
+    MPI_Status status[2];
+    MPI_Isend(sendright, height, MPI_CHAR, rightrank, 1, cart_comm, &(request[0]));
+    MPI_Irecv(recvleft, height, MPI_CHAR, leftrank, 1, cart_comm, &(request[1]));
+    MPI_Waitall(2, request, status);
+    for (int y = 0; y < height - 1; y++) {
+        int i = calcIndex(width, width - 1, y);
+        int l = calcIndex(width, 0, y);
+        field[l] = recvleft[y];
+    }
 }
 
 void game (int width, int height, int num_timesteps, int gsizes[2]) {
