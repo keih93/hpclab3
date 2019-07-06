@@ -81,7 +81,7 @@ void write_field (char* currentfield, int width, int height, int timestep) {
     }
     create_vtk_header (vtk_header, width, height, timestep);
   }
-  printf("%d writting step %d\n",rank_cart,timestep );
+
   char filename[1024];
   snprintf (filename, 1024, "./gol/gol-%05d.vtk", timestep);
   MPI_Offset header_offset = (MPI_Offset)strlen(vtk_header);
@@ -238,8 +238,8 @@ void apply_periodic_boundaries(char * field, int width, int height){
   }
   sendleft[height] = 'l';
   sendright[height] = 'r';
-  //sendleft[height+1] = rank_cart;
-  //sendright[height+1] = rank_cart;
+  sendleft[height+1] = (char) rank_cart;
+  sendright[height+1] = (char) rank_cart;
   for (int x = 0; x < width - 1; x++) {
     int b = calcIndex(width, x, 1);
     int c = calcIndex(width, x, height - 2);
@@ -248,23 +248,23 @@ void apply_periodic_boundaries(char * field, int width, int height){
   }
   sendbot[width] = 'b';
   sendtop[width] = 't';
-  //sendbot[width+1] = rank_cart;
-  //sendtop[width+1] = rank_cart;
-printf("hier \n");
+  sendbot[width+1] = (char) rank_cart;
+  sendtop[width+1] = (char) rank_cart;
+
     MPI_Request request[8];
     MPI_Status status[8];
-    MPI_Isend(sendtop, width+3, MPI_CHAR, toprank, 1, cart_comm, &(request[0]));
-    MPI_Isend(sendbot, width+3, MPI_CHAR, botrank, 1, cart_comm, &(request[1]));
-    MPI_Isend(sendleft, height+3, MPI_CHAR, leftrank, 1, cart_comm, &(request[2]));
-    MPI_Isend(sendright, height+3, MPI_CHAR, rightrank, 1, cart_comm, &(request[3]));
+    MPI_Isend(sendtop, width, MPI_CHAR, toprank, 1, cart_comm, &(request[0]));
+    MPI_Isend(sendbot, width, MPI_CHAR, botrank, 1, cart_comm, &(request[1]));
+    MPI_Isend(sendleft, height, MPI_CHAR, leftrank, 1, cart_comm, &(request[2]));
+    MPI_Isend(sendright, height, MPI_CHAR, rightrank, 1, cart_comm, &(request[3]));
 
-    MPI_Irecv(recvcells[0], width+3, MPI_CHAR, toprank, 2, cart_comm, &(request[4]));
-    MPI_Irecv(recvcells[1], width+3, MPI_CHAR, botrank, 2, cart_comm, &(request[5]));
-    MPI_Irecv(recvcells[2], height+3, MPI_CHAR, leftrank, 2, cart_comm, &(request[6]));
-    MPI_Irecv(recvcells[3], height+3, MPI_CHAR, rightrank, 2, cart_comm, &(request[7]));
+    MPI_Irecv(recvcells[0], width, MPI_CHAR, toprank, 1, cart_comm, &(request[4]));
+    MPI_Irecv(recvcells[1], width, MPI_CHAR, botrank, 1, cart_comm, &(request[5]));
+    MPI_Irecv(recvcells[2], height, MPI_CHAR, leftrank, 1, cart_comm, &(request[6]));
+    MPI_Irecv(recvcells[3], height, MPI_CHAR, rightrank, 1, cart_comm, &(request[7]));
     MPI_Waitall(8, request, status);
     if(rank_cart == 3){
-      printf("top %c %c bot %c %c left %c %c right %c %c\n",recvcells[0][width], recvcells[0][width+1], recvcells[1][width], recvcells[1][width+1], recvcells[2][width], recvcells[2][width+1], recvcells[3][width], recvcells[3][width+1]);
+      printf("top %s bot %s left %s right %s\n",toprank, botrank, leftrank, rightrank);
     }
   for(int i = 0; i < 4; i++){
     if(recvcells[i][width] == 'b'){
