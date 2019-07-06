@@ -191,11 +191,9 @@ void apply_periodic_boundaries(char * field, int width, int height){
   char* sendbot =calloc (width+1, sizeof(char));
   char* sendleft =calloc (height+1, sizeof(char));
   char* sendright =calloc (height+1, sizeof(char));
-  char recvcells[4][width+1]; //[width+1], recvbot[width+1], recvleft[height+1],recvright[height+1];
+  char* recvcells[4]; //[width+1], recvbot[width+1], recvleft[height+1],recvright[height+1];
   for(int i = 0; i<4; i++){
-    for(int j = 0; j < width+1; j++){
-      recvcells[i][j] = DEAD;
-    }
+      recvcells[i] = calloc (height+1, sizeof(char));;
   }
   int toprank, botrank, leftrank, rightrank;
   int topcoords[2], botcoords[2], leftcoords[2], rightcoords[2];
