@@ -177,7 +177,6 @@ void filling_runner (char * currentfield, int width, int height) {
 
 void apply_periodic_boundaries(char * field, int width, int height){
   //TODO: implement periodic boundary copies
-  int i, j, k, l;
   char sendtop[width], sendbot[width], sendleft[height],sendright[height];
   char recvtop[width], recvbot[width], recvleft[height],recvright[height];
   int toprank, botrank, leftrank, rightrank;
