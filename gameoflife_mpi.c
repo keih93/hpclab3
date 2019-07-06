@@ -253,25 +253,25 @@ void apply_periodic_boundaries(char * field, int width, int height){
     if(recvcells[i][width] == 't'){
       for (int x = 0; x < width - 1; x++) {
         int a = calcIndex(width, x, height - 1);
-        field[a] = recvtop[x];
+        field[a] = recvcells[i][x];
       }
     }
     if(recvcells[i][width] == 'b'){
       for (int x = 0; x < width - 1; x++) {
         int d = calcIndex(width, x, 0);
-        field[d] = recvbot[x];
+        field[d] = recvcells[i][x];
       }
     }
     if(recvcells[i][width] == 'l'){
       for (int y = 0; y < height - 1; y++) {
           int l = calcIndex(width, 0, y);
-          field[l] = recvleft[y];
+          field[l] = recvcells[i][y];
       }
     }
     if(recvcells[i][width] == 'r'){
       for (int y = 0; y < height - 1; y++) {
           int i = calcIndex(width, width - 1, y);
-          field[i] = recvright[y];
+          field[i] = recvcells[i][y];
       }
     }
   }
