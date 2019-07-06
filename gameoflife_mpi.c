@@ -209,7 +209,7 @@ void apply_periodic_boundaries(char * field, int width, int height){
   }else{
     rightcoords[0]=coords[0]+1;
     rightcoords[1]=coords[1];
-    MPI_Cart_rank(cart_comm, rightrank,&rightrank);
+    MPI_Cart_rank(cart_comm, rightcoords,&rightrank);
   }
   if(coords[0] == 0){
     leftcoords[0]=maxcoords[0];
