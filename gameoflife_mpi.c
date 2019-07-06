@@ -33,7 +33,7 @@ int           num_tasks;           // The number of processes
 int           coords[2];
 int           gsizes[2];           // global size of the domain without boundaries
 int           lsizes[2];           // local size without boundaries
-
+int           dims[2];
 
 MPI_Datatype  filetype;            //
 MPI_Comm      cart_comm;           // Communicator for the cartesian grid
@@ -178,7 +178,50 @@ void filling_runner (char * currentfield, int width, int height) {
 void apply_periodic_boundaries(char * field, int width, int height){
   //TODO: implement periodic boundary copies
   int i, j, k, l;
-  for (int y = 0; y < height - 1; y++) {
+  char sendtop[width], sendbot[width], sendleft[height],sendright[height];
+  char recvtop[width], recvbot[width], recvleft[height],recvright[height];
+  int toprank, botrank, leftrank, rightrank;
+  int topcoords[2], botcoords[2], leftcoords[2], rightcoords[2];
+  int maxcoords[2];
+  MPI_Cart_coords(cart_comm, num_tasks-1, 2, maxcoords);
+  if(coords[1] == maxcoords[1]){
+    topcoords[0]=coords[0];
+    topcoords[1]=0;
+    MPI_Cart_rank(cart_comm, topcoords,&toprank);
+  }else{
+    topcoords[0]=coords[0];
+    topcoords[1]=coords[1]+1;
+    MPI_Cart_rank(cart_comm, topcoords,&toprank);
+  }
+  if(coords[1] == 0){
+    botcoords[0]=coords[0];
+    botcoords[1]=maxcoords[0];
+    MPI_Cart_rank(cart_comm, botcoords,&botrank);
+  }else{
+    botcoords[0]=coords[0];
+    botcoords[1]=coords[1]-1;
+    MPI_Cart_rank(cart_comm, botcoords,&botrank);
+  }
+  if(coords[0] == maxcoords[0]){
+    rightcoords[0]=0;
+    rightcoords[1]=coords[1];
+    MPI_Cart_rank(cart_comm, rightcoords,&rightrank);
+  }else{
+    rightcoords[0]=coords[0]+1;
+    rightcoords[1]=coords[1];
+    MPI_Cart_rank(cart_comm, rightrank,&rightrank);
+  }
+  if(coords[0] == 0){
+    leftcoords[0]=maxcoords[0];
+    leftcoords[1]=coords[1];
+    MPI_Cart_rank(cart_comm, leftcoords,&leftrank);
+  }else{
+    leftcoords[0]=coords[0]-1;
+    leftcoords[1]=coords[1];
+    MPI_Cart_rank(cart_comm, leftcoords,&leftrank);
+  }
+
+  /*for (int y = 0; y < height - 1; y++) {
       i = calcIndex(width, width - 1, y);
       j = calcIndex(width, 1, y);
       l = calcIndex(width, 0, y);
@@ -194,7 +237,7 @@ void apply_periodic_boundaries(char * field, int width, int height){
     c = calcIndex(width, x, height - 2);
     field[a] = field[b];
     field[d] = field[c];
-  }
+  }*/
 }
 
 void game (int width, int height, int num_timesteps, int gsizes[2]) {
@@ -204,12 +247,13 @@ void game (int width, int height, int num_timesteps, int gsizes[2]) {
   //filling_random (currentfield, width, height);
   filling_runner (currentfield, width, height);
   //filling_rank (currentfield, width, height);
-
+  apply_periodic_boundaries(newfield,width,height);
   int time = 0;
   write_field (currentfield, gsizes[X], gsizes[Y], time);
   for (time = 1; time <= num_timesteps; time++) {
     evolve (currentfield, newfield, width, height);
     write_field (newfield, gsizes[X], gsizes[Y], time);
+    apply_periodic_boundaries(newfield,width,height);
     char *temp = currentfield;
     currentfield = newfield;
     newfield = temp;
@@ -263,7 +307,8 @@ int main (int c, char **v) {
 
   /* TODO Create a new cartesian communicator of the worker communicator and get the information.
   */
-  int dims[2] = {process_numX, process_numY};
+  dims[0] = process_numX;
+  dims[1] = process_numY;
   int periods[2] = {1,1};
   MPI_Cart_create(MPI_COMM_WORLD, 2, dims, periods, 0, &cart_comm);
   MPI_Comm_rank(cart_comm, &rank_cart);
