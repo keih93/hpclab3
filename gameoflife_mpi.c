@@ -270,25 +270,25 @@ void apply_periodic_boundaries(char * field, int width, int height){
     MPI_Waitall(8, request, status);
 
   for(int i = 0; i < 4; i++){
-    if(recvcells[i][width] == 'b'){
+    if(recvcells[i][width] == 't'){
       for (int x = 0; x < width - 1; x++) {
         int a = calcIndex(width, x, height - 1);
         field[a] = recvcells[i][x];
       }
     }
-    if(recvcells[i][width] == 't'){
+    if(recvcells[i][width] == 'b'){
       for (int x = 0; x < width - 1; x++) {
         int d = calcIndex(width, x, 0);
         field[d] = recvcells[i][x];
       }
     }
-    if(recvcells[i][width] == 'r'){
+    if(recvcells[i][width] == 'l'){
       for (int y = 0; y < height - 1; y++) {
           int l = calcIndex(width, 0, y);
           field[l] = recvcells[i][y];
       }
     }
-    if(recvcells[i][width] == 'l'){
+    if(recvcells[i][width] == 'r'){
       for (int y = 0; y < height - 1; y++) {
           int i = calcIndex(width, width - 1, y);
           field[i] = recvcells[i][y];
@@ -302,7 +302,8 @@ void game (int width, int height, int num_timesteps, int gsizes[2]) {
   char *newfield = calloc (width * height, sizeof(char));
 
   //filling_random (currentfield, width, height);
-  filling_runner (currentfield, width, height);
+  if(rank_cart == 0;)
+  filling_runner1 (currentfield, width, height);
   //filling_rank (currentfield, width, height);
   apply_periodic_boundaries(currentfield,width,height);
   int time = 0;
