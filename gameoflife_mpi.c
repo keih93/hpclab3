@@ -365,10 +365,10 @@ int main (int c, char **v) {
 
   START_TIMEMEASUREMENT(measure_game_time);
 
-  MPI_Type_create_subarray(2,gsizes,lsizes,starts, MPI_ORDER_C,MPI_CHAR,&filetype);
+  MPI_Type_create_subarray(2,gsizes,lsizes,starts, MPI_ORDER_FORTRAN,MPI_CHAR,&filetype);
   MPI_Type_commit(&filetype);
 
-  MPI_Type_create_subarray(2,memsize,lsizes,startindices, MPI_ORDER_C,MPI_CHAR,&memtype);
+  MPI_Type_create_subarray(2,memsize,lsizes,startindices, MPI_ORDER_FORTRAN,MPI_CHAR,&memtype);
   MPI_Type_commit(&memtype);
 
   game(memsize[X], memsize[Y], num_timesteps, gsizes);
