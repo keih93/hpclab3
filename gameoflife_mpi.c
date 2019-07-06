@@ -236,6 +236,9 @@ void apply_periodic_boundaries(char * field, int width, int height){
   }
   sendbot[width] = 'b';
   sendtop[width] = 't';
+  if(rank_cart == 3){
+    printf("top %d bot %d left %d right %d\n",toprank, botrank, leftrank, rightrank);
+  }
     MPI_Request request[8];
     MPI_Status status[8];
     MPI_Isend(sendtop, width, MPI_CHAR, toprank, 1, cart_comm, &(request[0]));
