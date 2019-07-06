@@ -228,7 +228,7 @@ void apply_periodic_boundaries(char * field, int width, int height){
   }
   sendleft[height] = 'l';
   sendright[height] = 'r';
-  for (int x = 1; x < width - 1; x++) {
+  for (int x = 0; x < width - 1; x++) {
     int b = calcIndex(width, x, 1);
     int c = calcIndex(width, x, height - 2);
     sendbot[x] = field[b];
