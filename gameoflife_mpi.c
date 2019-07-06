@@ -257,7 +257,6 @@ void apply_periodic_boundaries(char * field, int width, int height){
     MPI_Waitall(2, request3, status3);
     for (int y = 0; y < height - 1; y++) {
         int i = calcIndex(width, width - 1, y);
-        int l = calcIndex(width, 0, y);
         field[i] = recvright[y];
     }
     MPI_Request request4[2];
@@ -266,7 +265,6 @@ void apply_periodic_boundaries(char * field, int width, int height){
     MPI_Irecv(recvleft, height, MPI_CHAR, leftrank, 1, cart_comm, &(request4[1]));
     MPI_Waitall(2, request4, status4);
     for (int y = 0; y < height - 1; y++) {
-        int i = calcIndex(width, width - 1, y);
         int l = calcIndex(width, 0, y);
         field[l] = recvleft[y];
     }
