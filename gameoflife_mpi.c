@@ -252,12 +252,12 @@ void apply_periodic_boundaries(char * field, int width, int height){
       printf("%d ",recvleft[y] );
     }
     printf("\n");
-    for (int x = 1; x < width - 1; x++) {
-      printf("%d ",recvtop[y] );
+    for (int x = 0; x < width - 1; x++) {
+      printf("%d ",recvtop[x] );
     }
     printf("\n");
-    for (int x = 1; x < width - 1; x++) {
-      printf("%d ",recvbot[y] );
+    for (int x = 0; x < width - 1; x++) {
+      printf("%d ",recvbot[x] );
     }
     printf("\n");
   for (int y = 0; y < height - 1; y++) {
