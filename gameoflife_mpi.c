@@ -236,8 +236,8 @@ void apply_periodic_boundaries(char * field, int width, int height){
   }else{
 
   }
-  //MPI_Send(elapsed_time_send, num_tasks, MPI_DOUBLE,(rank+1), comm, MPI_COMM_WORLD);
-  //MPI_Recv(elapsed_time_recv, num_tasks, MPI_DOUBLE,(rank-1), comm, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+  MPI_Send(elapsed_time_send, num_tasks, MPI_DOUBLE,(rank+1), comm, MPI_COMM_WORLD);
+  MPI_Recv(elapsed_time_recv, num_tasks, MPI_DOUBLE,(rank-1), comm, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
   /*   MPI_Request request[8];
     MPI_Status status[8];
     MPI_Isend(sendtop, width, MPI_CHAR, toprank, 1, cart_comm, &(request[0]));
