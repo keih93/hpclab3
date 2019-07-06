@@ -220,7 +220,8 @@ void apply_periodic_boundaries(char * field, int width, int height){
     leftcoords[1]=coords[1];
     MPI_Cart_rank(cart_comm, leftcoords,&leftrank);
   }
-    printf("rank %d toprank %d botrank %d leftrank %d rightrank %d \n",rank_cart, toprank, botrank, leftrank, rightrank);
+    printf("rank %d coords %d %d toprank %d botrank %d leftrank %d rightrank %d \n",rank_cart,coords[0], coords[1], toprank, botrank, leftrank, rightrank);
+
   /*for (int y = 0; y < height - 1; y++) {
       i = calcIndex(width, width - 1, y);
       j = calcIndex(width, 1, y);
@@ -253,7 +254,7 @@ void game (int width, int height, int num_timesteps, int gsizes[2]) {
   for (time = 1; time <= num_timesteps; time++) {
     evolve (currentfield, newfield, width, height);
     write_field (newfield, gsizes[X], gsizes[Y], time);
-    apply_periodic_boundaries(newfield,width,height);
+    //apply_periodic_boundaries(newfield,width,height);
     char *temp = currentfield;
     currentfield = newfield;
     newfield = temp;
