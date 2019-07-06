@@ -347,6 +347,7 @@ int main (int c, char **v) {
     elapsed_time_recv[i] = 0;
     }
   }
+
   START_TIMEMEASUREMENT(measure_game_time);
 
   MPI_Type_create_subarray(2,gsizes,lsizes,starts, MPI_ORDER_C,MPI_CHAR,&filetype);
@@ -358,6 +359,8 @@ int main (int c, char **v) {
   game(memsize[X], memsize[Y], num_timesteps, gsizes);
 
   END_TIMEMEASUREMENT(measure_game_time, elapsed_time_recv[rank]);
+
+  //time calculate
   elapsed_time_send[rank] = elapsed_time_recv[rank];
   printf("rank: %d time elapsed: %lf sec\n", rank, elapsed_time_recv[rank]);
   int comm = 99;
