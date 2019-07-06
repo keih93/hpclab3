@@ -220,7 +220,7 @@ void apply_periodic_boundaries(char * field, int width, int height){
     leftcoords[1]=coords[1];
     MPI_Cart_rank(cart_comm, leftcoords,&leftrank);
   }
-
+    printf("rank %d toprank %d botrank %d leftrank %d rightrank %d \n",rank_cart, toprank, botrank, leftrank, rightrank);
   /*for (int y = 0; y < height - 1; y++) {
       i = calcIndex(width, width - 1, y);
       j = calcIndex(width, 1, y);
