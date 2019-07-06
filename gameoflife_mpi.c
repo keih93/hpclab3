@@ -184,7 +184,7 @@ void apply_periodic_boundaries(char * field, int width, int height){
   int topcoords[2], botcoords[2], leftcoords[2], rightcoords[2];
   int maxcoords[2];
   MPI_Cart_coords(cart_comm, num_tasks-1, 2, maxcoords);
-  if(coords[1] == maxcoords[1]){
+  if(coords[0] == maxcoords[0]){
     topcoords[0]=coords[0];
     topcoords[1]=0;
     MPI_Cart_rank(cart_comm, topcoords,&toprank);
@@ -193,7 +193,7 @@ void apply_periodic_boundaries(char * field, int width, int height){
     topcoords[1]=coords[1]+1;
     MPI_Cart_rank(cart_comm, topcoords,&toprank);
   }
-  if(coords[1] == 0){
+  if(coords[0] == 0){
     botcoords[0]=coords[0];
     botcoords[1]=maxcoords[0];
     MPI_Cart_rank(cart_comm, botcoords,&botrank);
@@ -202,7 +202,7 @@ void apply_periodic_boundaries(char * field, int width, int height){
     botcoords[1]=coords[1]-1;
     MPI_Cart_rank(cart_comm, botcoords,&botrank);
   }
-  if(coords[0] == maxcoords[0]){
+  if(coords[1] == maxcoords[1]){
     rightcoords[0]=0;
     rightcoords[1]=coords[1];
     MPI_Cart_rank(cart_comm, rightcoords,&rightrank);
@@ -211,7 +211,7 @@ void apply_periodic_boundaries(char * field, int width, int height){
     rightcoords[1]=coords[1];
     MPI_Cart_rank(cart_comm, rightcoords,&rightrank);
   }
-  if(coords[0] == 0){
+  if(coords[1] == 0){
     leftcoords[0]=maxcoords[0];
     leftcoords[1]=coords[1];
     MPI_Cart_rank(cart_comm, leftcoords,&leftrank);
