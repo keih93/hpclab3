@@ -179,45 +179,45 @@ void apply_periodic_boundaries(char * field, int width, int height){
   //TODO: implement periodic boundary copies
   char sendtop[width], sendbot[width], sendleft[height],sendright[height];
   char recvtop[width], recvbot[width], recvleft[height],recvright[height];
-  int toprank, botrank, leftrank, rightrank;
+  int sendrank[4]; //top bot left right
   int topcoords[2], botcoords[2], leftcoords[2], rightcoords[2];
   int maxcoords[2];
   MPI_Cart_coords(cart_comm, num_tasks-1, 2, maxcoords);
   if(coords[1] == maxcoords[1]){
     topcoords[0]=coords[0];
     topcoords[1]=0;
-    MPI_Cart_rank(cart_comm, topcoords,&toprank);
+    MPI_Cart_rank(cart_comm, topcoords,&sendrank[0]);
   }else{
     topcoords[0]=coords[0];
     topcoords[1]=coords[1]+1;
-    MPI_Cart_rank(cart_comm, topcoords,&toprank);
+    MPI_Cart_rank(cart_comm, topcoords,&sendrank[0]);
   }
   if(coords[1] == 0){
     botcoords[0]=coords[0];
     botcoords[1]=maxcoords[0];
-    MPI_Cart_rank(cart_comm, botcoords,&botrank);
+    MPI_Cart_rank(cart_comm, botcoords,&sendrank[1]);
   }else{
     botcoords[0]=coords[0];
     botcoords[1]=coords[1]-1;
-    MPI_Cart_rank(cart_comm, botcoords,&botrank);
+    MPI_Cart_rank(cart_comm, botcoords,&sendrank[1]);
   }
   if(coords[0] == maxcoords[0]){
     rightcoords[0]=0;
     rightcoords[1]=coords[1];
-    MPI_Cart_rank(cart_comm, rightcoords,&rightrank);
+    MPI_Cart_rank(cart_comm, rightcoords,&sendrank[2]);
   }else{
     rightcoords[0]=coords[0]+1;
     rightcoords[1]=coords[1];
-    MPI_Cart_rank(cart_comm, rightcoords,&rightrank);
+    MPI_Cart_rank(cart_comm, rightcoords,&sendrank[2]);
   }
   if(coords[0] == 0){
     leftcoords[0]=maxcoords[0];
     leftcoords[1]=coords[1];
-    MPI_Cart_rank(cart_comm, leftcoords,&leftrank);
+    MPI_Cart_rank(cart_comm, leftcoords,&sendrank[3]);
   }else{
     leftcoords[0]=coords[0]-1;
     leftcoords[1]=coords[1];
-    MPI_Cart_rank(cart_comm, leftcoords,&leftrank);
+    MPI_Cart_rank(cart_comm, leftcoords,&sendrank[3]);
   }
   for (int y = 0; y < height - 1; y++) {
       int j = calcIndex(width, 1, y);
@@ -231,8 +231,14 @@ void apply_periodic_boundaries(char * field, int width, int height){
     sendbot[x] = field[b];
     sendtop[x] = field[c];
   }
+  if(rank_cart % 2 == 0){
 
-  /*  MPI_Request request[8];
+  }else{
+
+  }
+  MPI_Send(elapsed_time_send, num_tasks, MPI_DOUBLE,(rank+1), comm, MPI_COMM_WORLD);
+  MPI_Recv(elapsed_time_recv, num_tasks, MPI_DOUBLE,(rank-1), comm, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+  /*   MPI_Request request[8];
     MPI_Status status[8];
     MPI_Isend(sendtop, width, MPI_CHAR, toprank, 1, cart_comm, &(request[0]));
     MPI_Irecv(recvtop, width, MPI_CHAR, toprank, 1, cart_comm, &(request[4]));
@@ -247,10 +253,6 @@ void apply_periodic_boundaries(char * field, int width, int height){
     MPI_Irecv(recvright, height, MPI_CHAR, rightrank, 1, cart_comm, &(request[7]));
     MPI_Waitall(8, request, status);
     */
-    MPI_Sendrecv(sendtop, width, MPI_CHAR,toprank, 1, recvbot, width, MPI_CHAR,botrank, 2, cart_comm, MPI_STATUS_IGNORE);
-    MPI_Sendrecv(sendbot, width, MPI_CHAR,botrank, 1, recvtop, width, MPI_CHAR,toprank, 2, cart_comm, MPI_STATUS_IGNORE);
-    MPI_Sendrecv(sendleft, height, MPI_CHAR,leftrank, 1, recvright, height, MPI_CHAR,leftrank, 2, cart_comm, MPI_STATUS_IGNORE);
-    MPI_Sendrecv(sendright, height, MPI_CHAR,rightrank, 1, recvleft, height, MPI_CHAR,rightrank, 2, cart_comm, MPI_STATUS_IGNORE);
 
   for (int y = 0; y < height - 1; y++) {
       int i = calcIndex(width, width - 1, y);
