@@ -179,7 +179,7 @@ void apply_periodic_boundaries(char * field, int width, int height){
   //TODO: implement periodic boundary copies
   char sendtop[width+1], sendbot[width+1], sendleft[height+1],sendright[height+1];
 
-  char recvcells[num_tasks][width+1]; //[width+1], recvbot[width+1], recvleft[height+1],recvright[height+1];
+  char recvcells[4][width+1]; //[width+1], recvbot[width+1], recvleft[height+1],recvright[height+1];
   int toprank, botrank, leftrank, rightrank;
   int topcoords[2], botcoords[2], leftcoords[2], rightcoords[2];
   int maxcoords[2];
@@ -243,10 +243,10 @@ void apply_periodic_boundaries(char * field, int width, int height){
     MPI_Isend(sendleft, height, MPI_CHAR, leftrank, 1, cart_comm, &(request[2]));
     MPI_Isend(sendright, height, MPI_CHAR, rightrank, 1, cart_comm, &(request[3]));
 
-    MPI_Irecv(recvtop, width, MPI_CHAR, toprank, 1, cart_comm, &(request[4]));
-    MPI_Irecv(recvbot, width, MPI_CHAR, botrank, 1, cart_comm, &(request[5]));
-    MPI_Irecv(recvleft, height, MPI_CHAR, leftrank, 1, cart_comm, &(request[6]));
-    MPI_Irecv(recvright, height, MPI_CHAR, rightrank, 1, cart_comm, &(request[7]));
+    MPI_Irecv(recvcells[0], width, MPI_CHAR, toprank, 1, cart_comm, &(request[4]));
+    MPI_Irecv(recvcells[1], width, MPI_CHAR, botrank, 1, cart_comm, &(request[5]));
+    MPI_Irecv(recvcells[2], height, MPI_CHAR, leftrank, 1, cart_comm, &(request[6]));
+    MPI_Irecv(recvcells[3], height, MPI_CHAR, rightrank, 1, cart_comm, &(request[7]));
     MPI_Waitall(8, request, status);
 
   for(int i = 0; i < num_tasks; i++){
