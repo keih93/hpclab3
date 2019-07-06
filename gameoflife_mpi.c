@@ -177,9 +177,9 @@ void filling_runner (char * currentfield, int width, int height) {
 
 void apply_periodic_boundaries(char * field, int width, int height){
   //TODO: implement periodic boundary copies
-  char sendcells[num_tasks][width]; //, sendbot[width], sendleft[height],sendright[height];
-  char recvcells[num_tasks][width]; //, recvbot[width], recvleft[height],recvright[height];
-  int sendrank[num_tasks]; //top bot left right
+  char sendtop[width], sendbot[width], sendleft[height],sendright[height];
+  char recvtop[width], recvbot[width], recvleft[height],recvright[height];
+  int sendrank[4]; //top bot left right
   int topcoords[2], botcoords[2], leftcoords[2], rightcoords[2];
   int maxcoords[2];
   MPI_Cart_coords(cart_comm, num_tasks-1, 2, maxcoords);
@@ -222,62 +222,49 @@ void apply_periodic_boundaries(char * field, int width, int height){
   for (int y = 0; y < height - 1; y++) {
       int j = calcIndex(width, 1, y);
       int k = calcIndex(width, width - 2, y);
-      sendcells[2][y] = field[j];
-      sendcells[3][y] = field[k];
+      sendleft[y] = field[j];
+      sendright[y] = field[k];
   }
   for (int x = 1; x < width - 1; x++) {
     int b = calcIndex(width, x, 1);
     int c = calcIndex(width, x, height - 2);
-    sendcells[1][x] = field[b];
-    sendcells[0][x] = field[c];
+    sendbot[x] = field[b];
+    sendtop[x] = field[c];
   }
   if(rank_cart % 2 == 0){
-    for(int i = 0; i < num_tasks; i++){
-      if(sendrank[i] % 2 != 0)
-      MPI_Send(sendcells[i], sendcells[i]/sendcells[i][0], MPI_CHAR,sendrank[i], 1, cart_comm);
-    }
-    for(int i = 0; i < num_tasks; i++){
-      if(sendrank[i] % 2 != 0)
-      MPI_Recv(recvcells[i], sendcells[i]/sendcells[i][0], MPI_CHAR,sendrank[i], 2, cart_comm, MPI_STATUS_IGNORE);
-    }
-    for(int i = 0; i < num_tasks; i++){
-      if(sendrank[i] % 2 == 0)
-      MPI_Send(sendcells[i], sendcells[i]/sendcells[i][0], MPI_CHAR,sendrank[i], 1, cart_comm);
-    }
-    for(int i = 0; i < num_tasks; i++){
-      if(sendrank[i] % 2 == 0)
-      MPI_Recv(recvcells[i], sendcells[i]/sendcells[i][0], MPI_CHAR,sendrank[i], 2, cart_comm, MPI_STATUS_IGNORE);
-    }
+
   }else{
-    for(int i = 0; i < num_tasks; i++){
-      if(sendrank[i] % 2 == 0)
-      MPI_Recv(recvcells[i], sendcells[i]/sendcells[i][0], MPI_CHAR,sendrank[i], 2, cart_comm, MPI_STATUS_IGNORE);
-    }
-    for(int i = 0; i < num_tasks; i++){
-      if(sendrank[i] % 2 == 0)
-      MPI_Send(sendcells[i], sendcells[i]/sendcells[i][0], MPI_CHAR,sendrank[i], 1, cart_comm);
-    }
-    for(int i = 0; i < num_tasks; i++){
-      if(sendrank[i] % 2 != 0)
-      MPI_Recv(recvcells[i], sendcells[i]/sendcells[i][0], MPI_CHAR,sendrank[i], 2, cart_comm, MPI_STATUS_IGNORE);
-    }
-    for(int i = 0; i < num_tasks; i++){
-      if(sendrank[i] % 2 != 0)
-      MPI_Send(sendcells[i], sendcells[i]/sendcells[i][0], MPI_CHAR,sendrank[i], 1, cart_comm);
-    }
+
   }
+  //MPI_Send(elapsed_time_send, num_tasks, MPI_DOUBLE,(rank+1), comm, MPI_COMM_WORLD);
+  //MPI_Recv(elapsed_time_recv, num_tasks, MPI_DOUBLE,(rank-1), comm, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+  /*   MPI_Request request[8];
+    MPI_Status status[8];
+    MPI_Isend(sendtop, width, MPI_CHAR, toprank, 1, cart_comm, &(request[0]));
+    MPI_Irecv(recvtop, width, MPI_CHAR, toprank, 1, cart_comm, &(request[4]));
+
+    MPI_Isend(sendbot, width, MPI_CHAR, botrank, 1, cart_comm, &(request[1]));
+    MPI_Isend(sendleft, height, MPI_CHAR, leftrank, 1, cart_comm, &(request[2]));
+    MPI_Isend(sendright, height, MPI_CHAR, rightrank, 1, cart_comm, &(request[3]));
+
+    MPI_Irecv(recvtop, width, MPI_CHAR, toprank, 1, cart_comm, &(request[4]));
+    MPI_Irecv(recvbot, width, MPI_CHAR, botrank, 1, cart_comm, &(request[5]));
+    MPI_Irecv(recvleft, height, MPI_CHAR, leftrank, 1, cart_comm, &(request[6]));
+    MPI_Irecv(recvright, height, MPI_CHAR, rightrank, 1, cart_comm, &(request[7]));
+    MPI_Waitall(8, request, status);
+    */
 
   for (int y = 0; y < height - 1; y++) {
       int i = calcIndex(width, width - 1, y);
       int l = calcIndex(width, 0, y);
-      field[i] = recvcells[3][y];
-      field[l] = recvcells[2][y];
+      field[i] = recvright[y];
+      field[l] = recvleft[y];
   }
   for (int x = 0; x < width - 1; x++) {
     int a = calcIndex(width, x, height - 1);
     int d = calcIndex(width, x, 0);
-    field[a] = recvcells[0][x];
-    field[d] = recvcells[1][x];
+    field[a] = recvtop[x];
+    field[d] = recvbot[x];
   }
 }
 
