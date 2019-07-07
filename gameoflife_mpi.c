@@ -385,8 +385,8 @@ void apply_periodic_boundaries(char *field, int width, int height) {
             numrequest1 = numrequest1 + 2;
             printf("%d h %d numrequest %d recvcells %c sendcells %c \n", rank_cart, i, numrequest1, recvcellstb[i][width],sendcellstb[i][width]);
           }else{
-            MPI_Isend(&sendcellslr[i], height + 1, MPI_CHAR, neighborank[i], 1, cart_comm, &(request[numrequest1]));
-            MPI_Irecv(&recvcellslr[i], height + 1, MPI_CHAR, neighborank[i], 1, cart_comm, &(request[numrequest1 + 1]));
+            MPI_Isend(&sendcellslr[i-2], height + 1, MPI_CHAR, neighborank[i], 1, cart_comm, &(request[numrequest1]));
+            MPI_Irecv(&recvcellslr[i-2], height + 1, MPI_CHAR, neighborank[i], 1, cart_comm, &(request[numrequest1 + 1]));
             numrequest1 = numrequest1 + 2;
             printf("%d h %d numrequest %d recvcells %c sendcells %c \n", rank_cart, i, numrequest1, recvcellslr[i][width],sendcellslr[i][width]);
           }
