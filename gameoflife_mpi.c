@@ -365,25 +365,25 @@ void apply_periodic_boundaries(char * field, int width, int height){
 
 
   for(int i = 0; i < 2; i++){
-    if(recvcells[i][width] == 'b'){
+    if(recvcellstb[i][width] == 'b'){
       for (int x = 0; x < width - 1; x++) {
         int a = calcIndex(width, x, height - 1);
         field[a] = recvcellstb[i][x];
       }
     }
-    if(recvcells[i][width] == 't'){
+    if(recvcellstb[i][width] == 't'){
       for (int x = 0; x < width - 1; x++) {
         int d = calcIndex(width, x, 0);
         field[d] = recvcellstb[i][x];
       }
     }
-    if(recvcells[i][width] == 'r'){
+    if(recvcellslr[i][width] == 'r'){
       for (int y = 0; y < height - 1; y++) {
           int l = calcIndex(width, 0, y);
           field[l] = recvcellslr[i][y];
       }
     }
-    if(recvcells[i][width] == 'l'){
+    if(recvcellslr[i][width] == 'l'){
       for (int y = 0; y < height - 1; y++) {
           int u = calcIndex(width, width - 1, y);
           field[u] = recvcellslr[i][y];
