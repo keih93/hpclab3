@@ -241,41 +241,41 @@ void apply_periodic_boundaries(char * field, int width, int height){
   // side cells
   char sidecells[4];//sidedownleft, sideupleft, sidedownright, sideupright
   //siderank
-  int s = 0;
+  int s;
   if((coords[0]-1) >= 0){
     if((coords[1]-1) >= 0){
+      s = 0;
       sidecoords[s][0]=coords[0]-1;
       sidecoords[s][1]=coords[1]-1;
       MPI_Cart_rank(cart_comm, sidecoords[s],&siderank[s]);
       int dl = calcIndex(width, 1, 1);
       sidecells[s] = field[dl];
-      s++;
     }
     if((coords[1]+1) <= maxcoords[1]){
+      s = 1;
       sidecoords[s][0]=coords[0]-1;
       sidecoords[s][1]=coords[1]+1;
       MPI_Cart_rank(cart_comm, sidecoords[s],&siderank[s]);
       int ul = calcIndex(width, 1, height-2);
       sidecells[s] = field[ul];
-      s++;
     }
   }
   if((coords[0]+1) <= maxcoords[0]){
     if((coords[1]-1) >= 0){
+      s = 2;
       sidecoords[s][0]=coords[0]+1;
       sidecoords[s][1]=coords[1]-1;
       MPI_Cart_rank(cart_comm, sidecoords[s],&siderank[s]);
       int dr = calcIndex(width, width-2, 1);
       sidecells[s] = field[dr];
-      s++;
     }
     if((coords[1]+1) <= maxcoords[1]){
+      s = 3;
       sidecoords[s][0]=coords[0]+1;
       sidecoords[s][1]=coords[1]+1;
       MPI_Cart_rank(cart_comm, sidecoords[s],&siderank[s]);
       int ur = calcIndex(width, width-2, height-2);
       sidecells[s] = field[ur];
-      s++;
     }
   }
 
