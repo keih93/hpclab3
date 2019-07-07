@@ -294,10 +294,8 @@ void apply_periodic_boundaries(char * field, int width, int height){
   MPI_Waitall(countside, request1, status1);
   // put side cells in place
   int a1, a2, a3, a4;
-  for(int h = 0; h < countside; h++){
-    if(siderank[h] < num_tasks){
-      switch (h) {
-        case 0:
+      switch (rank_cart) {
+        case 3:
         a1 = calcIndex(width, 0, 0);
         field[a1] = recvsidecells[h];
         case 1:
@@ -306,11 +304,9 @@ void apply_periodic_boundaries(char * field, int width, int height){
         case 2:
         a3 = calcIndex(width, width-1, 0);
         field[a3] = recvsidecells[h];
-        case 3:
+        case 0:
         a4 = calcIndex(width, width-1, height - 1);
         field[a4] = recvsidecells[h];
-      }
-    }
   }
   //prepare sendcells
   for (int y = 0; y < height - 1; y++) {
