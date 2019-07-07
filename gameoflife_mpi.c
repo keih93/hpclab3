@@ -294,17 +294,17 @@ void apply_periodic_boundaries(char * field, int width, int height){
   MPI_Status status1[2*countside];
   int numrequest = 0;
   for(int h = 0; h < 4; h++){
-    printf("%d siderank %d num_tasks %d h %d \n",rank_cart,siderank[h], num_tasks,h);
+    //printf("%d siderank %d num_tasks %d h %d \n",rank_cart,siderank[h], num_tasks,h);
     if(siderank[h] != num_tasks){
       MPI_Isend(&sidecells[h], 1, MPI_CHAR, siderank[h], 1, cart_comm, &(request1[numrequest]));
       MPI_Irecv(&recvsidecells[h], 1, MPI_CHAR, siderank[h], 1, cart_comm, &(request1[numrequest+1]));
       numrequest = numrequest +2;
-      printf("%d h %d numrequest %d \n",rank_cart,h, numrequest );
+      //printf("%d h %d numrequest %d \n",rank_cart,h, numrequest );
     }
   }
-  printf("%d before MPI_Waitall countside %d request1 %d\n",rank_cart,countside,(sizeof(request1)/sizeof(MPI_Request)));
+  //printf("%d before MPI_Waitall countside %d request1 %d\n",rank_cart,countside,(sizeof(request1)/sizeof(MPI_Request)));
   MPI_Waitall(countside, request1, status1);
-  printf("%d out\n",rank_cart );
+  //printf("%d out\n",rank_cart );
   // put side cells in place
   int a1, a2, a3, a4;
   for(int h = 0; h < 4; h++){
