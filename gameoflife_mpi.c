@@ -349,7 +349,7 @@ void apply_periodic_boundaries(char * field, int width, int height){
   //mark the buffer left or right
   sendcellslr[0][height] = 'l';
   sendcellslr[1][height] = 'r';
-
+    printf("send %c empty receive %c \n",sendcellslr[0][height],recvcellslr[0][height]);
     MPI_Request request[4];
     MPI_Status status[4];
     //MPI_Isend(sendcellstb[0], width+1, MPI_CHAR, toprank, 1, cart_comm, &(request[0]));
