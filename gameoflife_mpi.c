@@ -249,7 +249,7 @@ void apply_periodic_boundaries(char * field, int width, int height){
       sidecoords[s][1]=coords[1]-1;
       MPI_Cart_rank(cart_comm, sidecoords[s],&siderank[s]);
       int dl = calcIndex(width, 1, 1);
-      sidecells[s] = field[dl];
+      sidecells = field[dl];
     }
     if((coords[1]+1) <= maxcoords[1]){
       s = 1;
@@ -257,7 +257,7 @@ void apply_periodic_boundaries(char * field, int width, int height){
       sidecoords[s][1]=coords[1]+1;
       MPI_Cart_rank(cart_comm, sidecoords[s],&siderank[s]);
       int ul = calcIndex(width, 1, height-2);
-      sidecells[s] = field[ul];
+      sidecells = field[ul];
     }
   }
   if((coords[0]+1) <= maxcoords[0]){
@@ -267,7 +267,7 @@ void apply_periodic_boundaries(char * field, int width, int height){
       sidecoords[s][1]=coords[1]-1;
       MPI_Cart_rank(cart_comm, sidecoords[s],&siderank[s]);
       int dr = calcIndex(width, width-2, 1);
-      sidecells[s] = field[dr];
+      sidecells = field[dr];
     }
     if((coords[1]+1) <= maxcoords[1]){
       s = 3;
@@ -275,16 +275,10 @@ void apply_periodic_boundaries(char * field, int width, int height){
       sidecoords[s][1]=coords[1]+1;
       MPI_Cart_rank(cart_comm, sidecoords[s],&siderank[s]);
       int ur = calcIndex(width, width-2, height-2);
-      sidecells[s] = field[ur];
+      sidecells = field[ur];
     }
   }
 
-  //count number of sides
-  int countside = 0;
-  for(int h = 0; h < 4; h++){
-    if(siderank[h] != num_tasks)
-    countside++;
-  }
   //send siderank
   char recvsidecells = DEAD;
   MPI_Request request1[2];
