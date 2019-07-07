@@ -205,11 +205,17 @@ void filling_runner(char *currentfield, int width, int height) {
 void apply_periodic_boundaries(char *field, int width, int height) {
     //TODO: implement periodic boundary copies
     printf("%d switching boundaries %d %d\n",rank_cart, width, height);
-    char *sendcells[4];
-    char *recvcells[4];
-    for (int a = 0; a < 4; a++) {
-        recvcells[a] = calloc(height + 1, sizeof(char));
-        sendcells[a] = calloc(width + 1, sizeof(char));
+    char *sendcellstb[2];
+    char *recvcellstb[2];
+    char *sendcellslr[2];
+    char *recvcellslr[2];
+    for (int a = 0; a < 2; a++) {
+        recvcellstb[a] = calloc(width + 1, sizeof(char));
+        sendcellstb[a] = calloc(width + 1, sizeof(char));
+    }
+    for (int a = 0; a < 2; a++) {
+        recvcellslr[a] = calloc(height + 1, sizeof(char));
+        sendcellslr[a] = calloc(height + 1, sizeof(char));
     }
     int neighborank[4] = {num_tasks, num_tasks, num_tasks, num_tasks};//, botrank, leftrank, rightrank;
     int siderank[4] = {num_tasks, num_tasks, num_tasks, num_tasks};
@@ -371,12 +377,19 @@ void apply_periodic_boundaries(char *field, int width, int height) {
     MPI_Status status[2 * countneighbor];
     int numrequest1 = 0;
     for (int i = 0; i < 4; i++) {
-        printf("%d neighborank %d num_tasks %d h %d \n", rank_cart, neighborank[i], num_tasks, i);
+        printf("%d neighborank %d num_tasks %d i %d \n", rank_cart, neighborank[i], num_tasks, i);
         if (neighborank[i] != num_tasks && neighborank[i] != rank_cart) {
-            MPI_Isend(&sendcells[i], width + 1, MPI_CHAR, neighborank[i], 1, cart_comm, &(request[numrequest1]));
-            MPI_Irecv(&recvcells[i], width + 1, MPI_CHAR, neighborank[i], 1, cart_comm, &(request[numrequest1 + 1]));
+          if(i < 2){
+            MPI_Isend(&sendcellstb[i], width + 1, MPI_CHAR, neighborank[i], 1, cart_comm, &(request[numrequest1]));
+            MPI_Irecv(&recvcellstb[i], width + 1, MPI_CHAR, neighborank[i], 1, cart_comm, &(request[numrequest1 + 1]));
             numrequest1 = numrequest1 + 2;
             printf("%d h %d numrequest %d recvcells %c sendcells %c \n", rank_cart, i, numrequest1, recvcells[i][width],sendcells[i][width]);
+          }else{
+            MPI_Isend(&sendcellslr[i], height + 1, MPI_CHAR, neighborank[i], 1, cart_comm, &(request[numrequest1]));
+            MPI_Irecv(&recvcellslr[i], height + 1, MPI_CHAR, neighborank[i], 1, cart_comm, &(request[numrequest1 + 1]));
+            numrequest1 = numrequest1 + 2;
+            printf("%d h %d numrequest %d recvcells %c sendcells %c \n", rank_cart, i, numrequest1, recvcells[i][width],sendcells[i][width]);
+          }
         }
     }
     if (countneighbor != 0) {
