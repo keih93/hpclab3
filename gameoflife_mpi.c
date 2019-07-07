@@ -294,7 +294,7 @@ void apply_periodic_boundaries(char * field, int width, int height){
       printf("%d h %d \n",rank_cart,h );
     }
   }
-  printf("%d before MPI_Waitall countside %d\n",rank_cart,countside);
+  printf("%d before MPI_Waitall countside %d request1 %d\n",rank_cart,countside,(sizeof(request1)/sizeof(MPI_Request)));
   MPI_Waitall(countside, request1, status1);
   printf("%d out\n",rank_cart );
   // put side cells in place
