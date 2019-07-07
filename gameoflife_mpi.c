@@ -185,7 +185,7 @@ void filling_runner (char * currentfield, int width, int height) {
   }
 }
 
-void apply_periodic_boundaries(char * field, int width, int height, char* recvcells, char* sendcells){
+void apply_periodic_boundaries(char * field, int width, int height){
   //TODO: implement periodic boundary copies
   char* sendtop =calloc (width+1, sizeof(char));
  char* sendbot =calloc (width+1, sizeof(char));
@@ -195,7 +195,7 @@ void apply_periodic_boundaries(char * field, int width, int height, char* recvce
  for(int i = 0; i<4; i++){
      recvcells[i] = calloc (height+1, sizeof(char));;
  }
-  printf("switching boundaries\n", );
+  printf("switching boundaries\n");
   int toprank, botrank, leftrank, rightrank;
   int siderank[4] = {num_tasks,num_tasks,num_tasks,num_tasks};
   int topcoords[2], botcoords[2], leftcoords[2], rightcoords[2];
@@ -291,26 +291,27 @@ void apply_periodic_boundaries(char * field, int width, int height, char* recvce
   MPI_Status status1[countside];
   for(int h = 0; h < countside; h++){
     if(siderank[h] != num_tasks){
-      MPI_Isend(sidecells[h], 1, MPI_CHAR, siderank[h], 1, cart_comm, &(request1[h]));
-      MPI_Irecv(recvsidecells[h], 1, MPI_CHAR, siderank[h], 1, cart_comm, &(request1[h]));
+      MPI_Isend(&sidecells[h], 1, MPI_CHAR, siderank[h], 1, cart_comm, &(request1[h]));
+      MPI_Irecv(&recvsidecells[h], 1, MPI_CHAR, siderank[h], 1, cart_comm, &(request1[h]));
     }
   }
   MPI_Waitall(countside, request1, status1);
   // put side cells in place
+  int a1, a2, a3, a4;
   for(int h = 0; h < countside; h++){
     if(siderank[h] < num_tasks){
       switch (h) {
         case 0:
-        int a1 = calcIndex(width, 0, 0);
+        a1 = calcIndex(width, 0, 0);
         field[a1] = recvsidecells[h];
         case 1:
-        int a2 = calcIndex(width, 0, height - 1);
+        a2 = calcIndex(width, 0, height - 1);
         field[a2] = recvsidecells[h];
         case 2:
-        int a3 = calcIndex(width, width-1, 0);
+        a3 = calcIndex(width, width-1, 0);
         field[a3] = recvsidecells[h];
         case 3:
-        int a4 = calcIndex(width, width-1, height - 1);
+        a4 = calcIndex(width, width-1, height - 1);
         field[a4] = recvsidecells[h];
       }
     }
