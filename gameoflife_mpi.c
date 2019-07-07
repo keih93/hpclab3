@@ -187,18 +187,21 @@ void filling_runner (char * currentfield, int width, int height) {
 
 void apply_periodic_boundaries(char * field, int width, int height){
   //TODO: implement periodic boundary copies
+  printf("switching boundaries\n");
   char* sendcells[4];
   char* recvcells[4];
   for(int i = 0; i<4; i++){
      recvcells[i] = calloc (height+1, sizeof(char));
      sendcells[i] = calloc (width+1, sizeof(char));
   }
-  printf("switching boundaries\n");
   int toprank, botrank, leftrank, rightrank;
   int siderank[4] = {num_tasks,num_tasks,num_tasks,num_tasks};
   int topcoords[2], botcoords[2], leftcoords[2], rightcoords[2];
   int sidecoords[4][2];
   int maxcoords[2];
+  // side cells
+  char sidecells[4]={DEAD,DEAD,DEAD,DEAD};//sidedownleft, sideupleft, sidedownright, sideupright
+  char recvsidecells[4]={DEAD,DEAD,DEAD,DEAD};
   MPI_Cart_coords(cart_comm, num_tasks-1, 2, maxcoords);
   if(coords[1] == maxcoords[1]){
     topcoords[0]=coords[0];
@@ -236,8 +239,6 @@ void apply_periodic_boundaries(char * field, int width, int height){
     leftcoords[1]=coords[1];
     MPI_Cart_rank(cart_comm, leftcoords,&leftrank);
   }
-  // side cells
-  char sidecells;//sidedownleft, sideupleft, sidedownright, sideupright
   //siderank
   int s;
   if((coords[0]-1) >= 0){
@@ -247,7 +248,7 @@ void apply_periodic_boundaries(char * field, int width, int height){
       sidecoords[s][1]=coords[1]-1;
       MPI_Cart_rank(cart_comm, sidecoords[s],&siderank[s]);
       int dl = calcIndex(width, 1, 1);
-      sidecells = field[dl];
+      sidecells[s] = field[dl];
     }
     if((coords[1]+1) <= maxcoords[1]){
       s = 1;
@@ -255,7 +256,7 @@ void apply_periodic_boundaries(char * field, int width, int height){
       sidecoords[s][1]=coords[1]+1;
       MPI_Cart_rank(cart_comm, sidecoords[s],&siderank[s]);
       int ul = calcIndex(width, 1, height-2);
-      sidecells = field[ul];
+      sidecells[s] = field[ul];
     }
   }
   if((coords[0]+1) <= maxcoords[0]){
@@ -265,7 +266,7 @@ void apply_periodic_boundaries(char * field, int width, int height){
       sidecoords[s][1]=coords[1]-1;
       MPI_Cart_rank(cart_comm, sidecoords[s],&siderank[s]);
       int dr = calcIndex(width, width-2, 1);
-      sidecells = field[dr];
+      sidecells[s] = field[dr];
     }
     if((coords[1]+1) <= maxcoords[1]){
       s = 3;
@@ -273,38 +274,20 @@ void apply_periodic_boundaries(char * field, int width, int height){
       sidecoords[s][1]=coords[1]+1;
       MPI_Cart_rank(cart_comm, sidecoords[s],&siderank[s]);
       int ur = calcIndex(width, width-2, height-2);
-      sidecells = field[ur];
+      sidecells[s] = field[ur];
     }
   }
 
   //send siderank
-  char recvsidecells = DEAD;
-  MPI_Request request1[2];
-  MPI_Status status1[2];
-  printf("%d hier\n",rank_cart );
-  switch (rank_cart) {
-    case 0:
-    printf("%d hier10\n",rank_cart );
-    MPI_Isend(&sidecells, 1, MPI_CHAR, 3, 1, cart_comm, &(request1[0]));
-    MPI_Irecv(&recvsidecells, 1, MPI_CHAR, 3, 1, cart_comm, &(request1[1]));
-    break;
-    case 1:
-    printf("%d hier11\n",rank_cart );
-    MPI_Isend(&sidecells, 1, MPI_CHAR, 2, 1, cart_comm, &(request1[0]));
-    MPI_Irecv(&recvsidecells, 1, MPI_CHAR, 2, 1, cart_comm, &(request1[1]));
-    break;
-    case 2:
-    printf("%d hier12\n",rank_cart );
-    MPI_Isend(&sidecells, 1, MPI_CHAR, 1, 1, cart_comm, &(request1[0]));
-    MPI_Irecv(&recvsidecells, 1, MPI_CHAR, 1, 1, cart_comm, &(request1[1]));
-    break;
-    case 3:
-    printf("%d hier13\n",rank_cart );
-    MPI_Isend(&sidecells, 1, MPI_CHAR, 0, 1, cart_comm, &(request1[0]));
-    MPI_Irecv(&recvsidecells, 1, MPI_CHAR, 0, 1, cart_comm, &(request1[1]));
-    break;
-}
-  MPI_Waitall(2, request1, status1);
+  MPI_Request request1[countside];
+  MPI_Status status1[countside];
+  for(int h = 0; h < countside; h++){
+    if(siderank[h] != num_tasks){
+      MPI_Isend(&sidecells[h], 2, MPI_CHAR, siderank[h], 1, cart_comm, &(request1[h]));
+      MPI_Irecv(&recvsidecells[h], 2, MPI_CHAR, siderank[h], 1, cart_comm, &(request1[h]));
+    }
+  }
+  MPI_Waitall(countside, request1, status1);
 
   // put side cells in place
   int a1, a2, a3, a4;
