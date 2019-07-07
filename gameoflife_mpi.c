@@ -185,7 +185,7 @@ void filling_runner (char * currentfield, int width, int height) {
   }
 }
 
-void apply_periodic_boundaries(char * field, int width, int height, char* sendcells, char* recvcells){
+void apply_periodic_boundaries(char * field, int width, int height){
   //TODO: implement periodic boundary copies
   char* sendcells[4];
   char* recvcells[4];
