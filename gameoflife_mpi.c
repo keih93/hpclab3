@@ -352,7 +352,7 @@ void apply_periodic_boundaries(char * field, int width, int height){
     MPI_Irecv(recvcells[2], height+1, MPI_CHAR, leftrank, 1, cart_comm, &(request[6]));
     MPI_Irecv(recvcells[3], height+1, MPI_CHAR, rightrank, 1, cart_comm, &(request[7]));
     MPI_Waitall(8, request, status);
-printf("%d out\n",rank_cart );
+
   for(int i = 0; i < 4; i++){
     if(recvcells[i][width] == 'b'){
       for (int x = 0; x < width - 1; x++) {
@@ -379,6 +379,7 @@ printf("%d out\n",rank_cart );
       }
     }
   }
+  printf("%d out\n",rank_cart );
 }
 
 void game (int width, int height, int num_timesteps, int gsizes[2]) {
