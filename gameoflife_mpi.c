@@ -397,8 +397,7 @@ void apply_periodic_boundaries(char *field, int width, int height) {
         //printf("%d before MPI_Waitall countneighbor %d request %d\n", rank_cart, countneighbor,(sizeof(request) / sizeof(MPI_Request)));
         MPI_Waitall(countside, request, status);
     }
-    for (int i = 0; i < 2; i++) {
-        printf("%d h %d numrequest %d recvcells %c sendcells %c \n", rank_cart, i, numrequest1, recvcellstb[i-2][width],sendcellslr[i-2][width]);
+    for (int i = 0; i < 4; i++) {
         printf("%d h %d numrequest %d recvcells %c sendcells %c \n", rank_cart, i, numrequest1, recvcellslr[i-2][height],sendcellslr[i-2][height]);
     }
     //printf("%d after send and recved \n", rank_cart);
