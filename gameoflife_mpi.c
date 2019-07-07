@@ -292,7 +292,7 @@ void apply_periodic_boundaries(char * field, int width, int height){
       MPI_Irecv(&recvsidecells[h], 1, MPI_CHAR, siderank[h], 1, cart_comm, &(request1[h]));
     }
   }
-  printf("%d before MPI_Waitall\n",rank_cart );
+  printf("%d before MPI_Waitall countside %d h %d \n",rank_cart,countside,h );
   MPI_Waitall(countside, request1, status1);
   printf("%d out\n",rank_cart );
   // put side cells in place
