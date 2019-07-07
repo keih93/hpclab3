@@ -356,10 +356,10 @@ int numrequest1 = 0;
 for(int h = 0; h < 4; h++){
   printf("%d neighborank %d num_tasks %d h %d \n",rank_cart,neighborank[h], num_tasks,h);
   if(neighborank[h] != num_tasks && neighborank[h] != rank_cart){
-    MPI_Isend(&sendcells[h], width+1, MPI_CHAR, neighborank[h], 1, cart_comm, &(request1[numrequest1]));
-    MPI_Irecv(&recvcells[h], width+1, MPI_CHAR, neighborank[h], 1, cart_comm, &(request1[numrequest1+1]));
+    MPI_Isend(&sendcells[h], width+1, MPI_CHAR, neighborank[h], 1, cart_comm, &(request[numrequest1]));
+    MPI_Irecv(&recvcells[h], width+1, MPI_CHAR, neighborank[h], 1, cart_comm, &(request[numrequest1+1]));
     numrequest1 = numrequest1 +2;
-    printf("%d h %d numrequest %d \n",rank_cart,h, numrequest );
+    printf("%d h %d numrequest %d \n",rank_cart,h, numrequest1 );
   }
 }
 if(countside != 0){
