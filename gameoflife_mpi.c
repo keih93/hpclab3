@@ -372,7 +372,7 @@ void apply_periodic_boundaries(char *field, int width, int height) {
     int numrequest1 = 0;
     for (int i = 0; i < 4; i++) {
         printf("%d neighborank %d num_tasks %d h %d \n", rank_cart, neighborank[i], num_tasks, i);
-        if (neighborank[i] != num_tasks && neighborank[h] != rank_cart) {
+        if (neighborank[i] != num_tasks && neighborank[i] != rank_cart) {
             MPI_Isend(&sendcells[i], width + 1, MPI_CHAR, neighborank[i], 1, cart_comm, &(request[numrequest1]));
             MPI_Irecv(&recvcells[i], width + 1, MPI_CHAR, neighborank[i], 1, cart_comm, &(request[numrequest1 + 1]));
             numrequest1 = numrequest1 + 2;
@@ -397,7 +397,7 @@ void apply_periodic_boundaries(char *field, int width, int height) {
         if (recvcells[k][width] == 't') {
             for (int x = 0; x < width - 1; x++) {
                 int m = calcIndex(width, x, 0);
-                field[m] = recvcells[i][x];
+                field[m] = recvcells[k][x];
                 printf("%d checking cells copy t \n");
             }
         }
