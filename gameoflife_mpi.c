@@ -395,7 +395,7 @@ void game (int width, int height, int num_timesteps, int gsizes[2]) {
   //if(rank_cart == 1)
   filling_runner1 (currentfield, width, height);
   //filling_rank (currentfield, width, height);
-  //apply_periodic_boundaries(currentfield,width,height);
+  apply_periodic_boundaries(currentfield,width,height);
   int time = 0;
   write_field (currentfield, gsizes[X], gsizes[Y], time);
   printf("%d out 7 \n",rank_cart );
@@ -404,7 +404,7 @@ void game (int width, int height, int num_timesteps, int gsizes[2]) {
     printf("%d out 8 \n",rank_cart );
     write_field (newfield, gsizes[X], gsizes[Y], time);
     printf("%d out 9 \n",rank_cart );
-    //apply_periodic_boundaries(newfield,width,height);
+    apply_periodic_boundaries(newfield,width,height);
     char *temp = currentfield;
     currentfield = newfield;
     newfield = temp;
