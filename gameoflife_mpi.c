@@ -76,7 +76,7 @@ void create_vtk_header(char *header, int width, int height, int timestep) {
 
 
 void write_field(char *currentfield, int width, int height, int timestep) {
-    printf(" %d writting step %d \n", rank_cart, timestep);
+    //printf(" %d writting step %d \n", rank_cart, timestep);
     if (timestep == 0) {
         if (rank_cart == 0) {
             mkdir("./gol/", 0777);
@@ -328,7 +328,7 @@ void apply_periodic_boundaries(char *field, int width, int height) {
                (sizeof(request1) / sizeof(MPI_Request)));
         MPI_Waitall(countside, request1, status1);
     }
-    printf("%d out\n", rank_cart);
+    //printf("%d out\n", rank_cart);
     // put side cells in place
     int a1, a2, a3, a4;
     for (int d = 0; d < 4; d++) {
@@ -353,7 +353,7 @@ void apply_periodic_boundaries(char *field, int width, int height) {
             }
         }
     }
-    printf("%d out 2\n", rank_cart);
+    //printf("%d out 2\n", rank_cart);
     //prepare sendcells
     for (int y = 0; y < height - 1; y++) {
         int e = calcIndex(width, 1, y);
@@ -371,7 +371,7 @@ void apply_periodic_boundaries(char *field, int width, int height) {
     }
     sendcellstb[1][width] = 'b';
     sendcellstb[0][width] = 't';
-    printf("%d out 3\n", rank_cart);
+    //printf("%d out 3\n", rank_cart);
     //send siderank
     MPI_Request request[2 * countneighbor];
     MPI_Status status[2 * countneighbor];
@@ -432,7 +432,7 @@ void apply_periodic_boundaries(char *field, int width, int height) {
             }
         }
     }
-    printf("%d out 6\n", rank_cart);
+    //printf("%d out 6\n", rank_cart);
 }
 
 void game(int width, int height, int num_timesteps, int gsizes[2]) {
@@ -449,9 +449,9 @@ void game(int width, int height, int num_timesteps, int gsizes[2]) {
     printf("%d out 7 \n", rank_cart);
     for (time = 1; time <= num_timesteps; time++) {
         evolve(currentfield, newfield, width, height);
-        printf("%d out 8 \n", rank_cart);
+        // printf("%d out 8 \n", rank_cart);
         write_field(newfield, gsizes[X], gsizes[Y], time);
-        printf("%d out 9 \n", rank_cart);
+        // printf("%d out 9 \n", rank_cart);
         apply_periodic_boundaries(newfield, width, height);
         char *temp = currentfield;
         currentfield = newfield;
