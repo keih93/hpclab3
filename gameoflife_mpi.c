@@ -195,7 +195,7 @@ void apply_periodic_boundaries(char * field, int width, int height){
      recvcells[i] = calloc (height+1, sizeof(char));
      sendcells[i] = calloc (width+1, sizeof(char));
   }
-  int toprank, botrank, leftrank, rightrank;
+  int neighborank[4] = {num_tasks,num_tasks,num_tasks,num_tasks};//, botrank, leftrank, rightrank;
   int siderank[4] = {num_tasks,num_tasks,num_tasks,num_tasks};
   int topcoords[2], botcoords[2], leftcoords[2], rightcoords[2];
   int sidecoords[4][2];
@@ -203,42 +203,43 @@ void apply_periodic_boundaries(char * field, int width, int height){
   // side cells
   char sidecells[4]={DEAD,DEAD,DEAD,DEAD};//sidedownleft, sideupleft, sidedownright, sideupright
   char recvsidecells[4]={DEAD,DEAD,DEAD,DEAD};
+  //find neighbor
   MPI_Cart_coords(cart_comm, num_tasks-1, 2, maxcoords);
   if(coords[1] == maxcoords[1]){
     topcoords[0]=coords[0];
     topcoords[1]=0;
-    MPI_Cart_rank(cart_comm, topcoords,&toprank);
+    MPI_Cart_rank(cart_comm, topcoords,&neighborank[0]);
   }else{
     topcoords[0]=coords[0];
     topcoords[1]=coords[1]+1;
-    MPI_Cart_rank(cart_comm, topcoords,&toprank);
+    MPI_Cart_rank(cart_comm, topcoords,&neighborank[0]);
   }
   if(coords[1] == 0){
     botcoords[0]=coords[0];
     botcoords[1]=maxcoords[0];
-    MPI_Cart_rank(cart_comm, botcoords,&botrank);
+    MPI_Cart_rank(cart_comm, botcoords,&neighborank[1]);
   }else{
     botcoords[0]=coords[0];
     botcoords[1]=coords[1]-1;
-    MPI_Cart_rank(cart_comm, botcoords,&botrank);
+    MPI_Cart_rank(cart_comm, botcoords,&neighborank[1]);
   }
   if(coords[0] == maxcoords[0]){
     rightcoords[0]=0;
     rightcoords[1]=coords[1];
-    MPI_Cart_rank(cart_comm, rightcoords,&rightrank);
+    MPI_Cart_rank(cart_comm, rightcoords,&neighborank[3]);
   }else{
     rightcoords[0]=coords[0]+1;
     rightcoords[1]=coords[1];
-    MPI_Cart_rank(cart_comm, rightcoords,&rightrank);
+    MPI_Cart_rank(cart_comm, rightcoords,&neighborank[3]);
   }
   if(coords[0] == 0){
     leftcoords[0]=maxcoords[0];
     leftcoords[1]=coords[1];
-    MPI_Cart_rank(cart_comm, leftcoords,&leftrank);
+    MPI_Cart_rank(cart_comm, leftcoords,&neighborank[2]);
   }else{
     leftcoords[0]=coords[0]-1;
     leftcoords[1]=coords[1];
-    MPI_Cart_rank(cart_comm, leftcoords,&leftrank);
+    MPI_Cart_rank(cart_comm, leftcoords,&neighborank[2]);
   }
   //siderank
   int s;
@@ -278,11 +279,14 @@ void apply_periodic_boundaries(char * field, int width, int height){
       sidecells[s] = field[ur];
     }
   }
-  //count number of sides
+  //count number of sides and neighbors
     int countside = 0;
+    int countneighbor = 0;
     for(int h = 0; h < 4; h++){
       if(siderank[h] != num_tasks)
       countside++;
+      if(neighborank[h] != num_tasks && neighborank[h] != rank_cart)
+      countneighbor++;
     }
   //send siderank
   MPI_Request request1[2*countside];
@@ -297,8 +301,8 @@ void apply_periodic_boundaries(char * field, int width, int height){
       printf("%d h %d numrequest %d \n",rank_cart,h, numrequest );
     }
   }
-  printf("%d before MPI_Waitall countside %d request1 %d\n",rank_cart,countside,(sizeof(request1)/sizeof(MPI_Request)));
   if(countside != 0){
+  printf("%d before MPI_Waitall countside %d request1 %d\n",rank_cart,countside,(sizeof(request1)/sizeof(MPI_Request)));
   MPI_Waitall(countside, request1, status1);
   }
   printf("%d out\n",rank_cart );
@@ -345,20 +349,24 @@ void apply_periodic_boundaries(char * field, int width, int height){
   sendcells[1][width] = 'b';
   sendcells[0][width] = 't';
 printf("%d out 3\n",rank_cart );
-    MPI_Request request[8];
-    MPI_Status status[8];
-    MPI_Isend(sendcells[0], width+1, MPI_CHAR, toprank, 1, cart_comm, &(request[0]));
-    MPI_Isend(sendcells[1], width+1, MPI_CHAR, botrank, 1, cart_comm, &(request[1]));
-    MPI_Isend(sendcells[2], height+1, MPI_CHAR, leftrank, 1, cart_comm, &(request[2]));
-    MPI_Isend(sendcells[3], height+1, MPI_CHAR, rightrank, 1, cart_comm, &(request[3]));
+//send siderank
+MPI_Request request[2*countneighbor];
+MPI_Status status[2*countneighbor];
+int numrequest1 = 0;
+for(int h = 0; h < 4; h++){
+  printf("%d siderank %d num_tasks %d h %d \n",rank_cart,neighborank[h], num_tasks,h);
+  if(neighborank[h] != num_tasks && neighborank[h] != rank_cart){
+    MPI_Isend(&sendcells[h], width+1, MPI_CHAR, neighborank[h], 1, cart_comm, &(request1[numrequest1]));
+    MPI_Irecv(&recvcells[h], width+1, MPI_CHAR, neighborank[h], 1, cart_comm, &(request1[numrequest1+1]));
+    numrequest1 = numrequest1 +2;
+    printf("%d h %d numrequest %d \n",rank_cart,h, numrequest );
+  }
+}
+if(countside != 0){
+printf("%d before MPI_Waitall countneighbor %d request %d\n",rank_cart,countneighbor,(sizeof(request)/sizeof(MPI_Request)));
+MPI_Waitall(countside, request, status);
+}
 
-    MPI_Irecv(recvcells[0], width+1, MPI_CHAR, toprank, 1, cart_comm, &(request[4]));
-    MPI_Irecv(recvcells[1], width+1, MPI_CHAR, botrank, 1, cart_comm, &(request[5]));
-    MPI_Irecv(recvcells[2], height+1, MPI_CHAR, leftrank, 1, cart_comm, &(request[6]));
-    MPI_Irecv(recvcells[3], height+1, MPI_CHAR, rightrank, 1, cart_comm, &(request[7]));
-printf("%d out 4\n",rank_cart );
-    MPI_Waitall(8, request, status);
-printf("%d out 5\n",rank_cart );
 
   for(int i = 0; i < 4; i++){
     if(recvcells[i][width] == 'b'){
