@@ -388,7 +388,7 @@ void game (int width, int height, int num_timesteps, int gsizes[2]) {
   char *newfield = calloc (width * height, sizeof(char));
   //variables for switching boudaries
   //filling_random (currentfield, width, height);
-  if(rank_cart == 0)
+  if(rank_cart == 1)
   filling_runner1 (currentfield, width, height);
   //filling_rank (currentfield, width, height);
   apply_periodic_boundaries(currentfield,width,height);
