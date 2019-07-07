@@ -360,8 +360,8 @@ void apply_periodic_boundaries(char *field, int width, int height) {
         sendcellslr[0][y] = field[e];
         sendcellslr[1][y] = field[f];
     }
-    sendcellslr[2][height] = 'l';
-    sendcellslr[3][height] = 'r';
+    sendcellslr[0][height] = 'l';
+    sendcellslr[1][height] = 'r';
     for (int x = 0; x < width - 1; x++) {
         int g = calcIndex(width, x, 1);
         int h = calcIndex(width, x, height - 2);
