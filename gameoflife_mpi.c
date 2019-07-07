@@ -205,10 +205,10 @@ void filling_runner(char *currentfield, int width, int height) {
 void apply_periodic_boundaries(char *field, int width, int height) {
     //TODO: implement periodic boundary copies
     //printf("%d switching boundaries %d %d\n",rank_cart, width, height);
-    char sendcellstb[2][width+1];
-    char recvcellstb[2][width+1];
-    char sendcellslr[2][height+1];
-    char recvcellslr[2][height+1];
+    char *sendcellstb[2];
+    char *recvcellstb[2];
+    char *sendcellslr[2];
+    char *recvcellslr[2];
     for (int a = 0; a < 2; a++) {
         recvcellstb[a] = calloc(width + 1, sizeof(char));
         sendcellstb[a] = calloc(width + 1, sizeof(char));
