@@ -393,8 +393,8 @@ void game (int width, int height, int num_timesteps, int gsizes[2]) {
   //variables for switching boudaries
   //filling_random (currentfield, width, height);
   //if(rank_cart == 1)
-  //filling_runner1 (currentfield, width, height);
-  filling_rank (currentfield, width, height);
+  filling_runner1 (currentfield, width, height);
+  //filling_rank (currentfield, width, height);
   //apply_periodic_boundaries(currentfield,width,height);
   int time = 0;
   write_field (currentfield, gsizes[X], gsizes[Y], time);
