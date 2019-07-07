@@ -323,6 +323,7 @@ void apply_periodic_boundaries(char * field, int width, int height){
       }
     }
   }
+  printf("%d out 2\n",rank_cart );
   //prepare sendcells
   for (int y = 0; y < height - 1; y++) {
       int j = calcIndex(width, 1, y);
@@ -340,7 +341,7 @@ void apply_periodic_boundaries(char * field, int width, int height){
   }
   sendcells[1][width] = 'b';
   sendcells[0][width] = 't';
-
+printf("%d out 3\n",rank_cart );
     MPI_Request request[8];
     MPI_Status status[8];
     MPI_Isend(sendcells[0], width+1, MPI_CHAR, toprank, 1, cart_comm, &(request[0]));
@@ -352,8 +353,9 @@ void apply_periodic_boundaries(char * field, int width, int height){
     MPI_Irecv(recvcells[1], width+1, MPI_CHAR, botrank, 1, cart_comm, &(request[5]));
     MPI_Irecv(recvcells[2], height+1, MPI_CHAR, leftrank, 1, cart_comm, &(request[6]));
     MPI_Irecv(recvcells[3], height+1, MPI_CHAR, rightrank, 1, cart_comm, &(request[7]));
+printf("%d out 4\n",rank_cart );
     MPI_Waitall(8, request, status);
-
+printf("%d out 5\n",rank_cart );
 
   for(int i = 0; i < 4; i++){
     if(recvcells[i][width] == 'b'){
@@ -381,6 +383,7 @@ void apply_periodic_boundaries(char * field, int width, int height){
       }
     }
   }
+  printf("%d out 6\n",rank_cart );
 }
 
 void game (int width, int height, int num_timesteps, int gsizes[2]) {
