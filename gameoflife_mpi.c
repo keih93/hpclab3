@@ -285,7 +285,7 @@ void apply_periodic_boundaries(char * field, int width, int height){
   MPI_Status status1[2];
   MPI_Isend(&sidecells, 2, MPI_CHAR, siderank[h], 1, cart_comm, &(request1[0]));
   MPI_Irecv(&recvsidecells, 2, MPI_CHAR, siderank[h], 1, cart_comm, &(request1[1]));
-  MPI_Waitall(countside, request1, status1);
+  MPI_Waitall(2, request1, status1);
   // put side cells in place
   int a1, a2, a3, a4;
       switch (rank_cart) {
