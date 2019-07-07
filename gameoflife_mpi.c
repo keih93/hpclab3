@@ -81,7 +81,7 @@ void write_field (char* currentfield, int width, int height, int timestep) {
     }
     create_vtk_header (vtk_header, width, height, timestep);
   }
-
+printf(" %d writting step %d \n",rank_cart,timestep );
   char filename[1024];
   snprintf (filename, 1024, "./gol/gol-%05d.vtk", timestep);
   MPI_Offset header_offset = (MPI_Offset)strlen(vtk_header);
