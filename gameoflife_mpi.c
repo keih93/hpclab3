@@ -363,7 +363,7 @@ void apply_periodic_boundaries(char * field, int width, int height){
     MPI_Irecv(recvcellslr[1], height+1, MPI_CHAR, rightrank, 1, cart_comm, &(request[3]));
     MPI_Waitall(4, request, status);
     printf("send %c received %c \n",sendcellslr[0][height],recvcellslr[0][height]);
-
+    printf("send %c received %c \n",sendcellslr[1][height],recvcellslr[1][height]);
   for(int i = 0; i < 2; i++){
     if(recvcellstb[i][width] == 'b'){
       for (int x = 0; x < width - 1; x++) {
@@ -377,14 +377,14 @@ void apply_periodic_boundaries(char * field, int width, int height){
         field[d] = recvcellstb[i][x];
       }
     }
-    if(recvcellslr[i][width] == 'r'){
+    if(recvcellslr[i][height] == 'r'){
       printf("%d right Received\n",rank_cart);
       for (int y = 0; y < height - 1; y++) {
           int l = calcIndex(width, 0, y);
           field[l] = recvcellslr[i][y];
       }
     }
-    if(recvcellslr[i][width] == 'l'){
+    if(recvcellslr[i][height] == 'l'){
       printf("%d left Received\n", rank_cart);
       for (int y = 0; y < height - 1; y++) {
           int u = calcIndex(width, width - 1, y);
