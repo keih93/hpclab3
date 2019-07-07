@@ -377,13 +377,13 @@ void apply_periodic_boundaries(char * field, int width, int height){
         field[d] = recvcellstb[i][x];
       }
     }
-    if(recvcellslr[i][width] == 'r'){
+    if(recvcellslr[i][height] == 'r'){
       for (int y = 0; y < height - 1; y++) {
           int l = calcIndex(width, 0, y);
           field[l] = recvcellslr[i][y];
       }
     }
-    if(recvcellslr[i][width] == 'l'){
+    if(recvcellslr[i][height] == 'l'){
       for (int y = 0; y < height - 1; y++) {
           int u = calcIndex(width, width - 1, y);
           field[u] = recvcellslr[i][y];
