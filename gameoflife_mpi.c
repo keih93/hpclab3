@@ -358,19 +358,19 @@ void apply_periodic_boundaries(char *field, int width, int height) {
     for (int y = 0; y < height - 1; y++) {
         int e = calcIndex(width, 1, y);
         int f = calcIndex(width, width - 2, y);
-        sendcells[2][y] = field[e];
-        sendcells[3][y] = field[f];
+        sendcellslr[0][y] = field[e];
+        sendcellslr[1][y] = field[f];
     }
-    sendcells[2][height] = 'l';
-    sendcells[3][height] = 'r';
+    sendcellslr[2][height] = 'l';
+    sendcellslr[3][height] = 'r';
     for (int x = 0; x < width - 1; x++) {
         int g = calcIndex(width, x, 1);
         int h = calcIndex(width, x, height - 2);
-        sendcells[1][x] = field[g];
-        sendcells[0][x] = field[h];
+        sendcellstb[1][x] = field[g];
+        sendcellstb[0][x] = field[h];
     }
-    sendcells[1][width] = 'b';
-    sendcells[0][width] = 't';
+    sendcellstb[1][width] = 'b';
+    sendcellstb[0][width] = 't';
     printf("%d out 3\n", rank_cart);
     //send siderank
     MPI_Request request[2 * countneighbor];
