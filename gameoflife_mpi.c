@@ -326,26 +326,26 @@ void apply_periodic_boundaries(char * field, int width, int height){
   for (int y = 0; y < height - 1; y++) {
       int j = calcIndex(width, 1, y);
       int k = calcIndex(width, width - 2, y);
-      sendleft[y] = field[j];
-      sendright[y] = field[k];
+      sendcells[2][y] = field[j];
+      sendcells[3][y] = field[k];
   }
-  sendleft[height] = 'l';
-  sendright[height] = 'r';
+  sendcells[2][height] = 'l';
+  sendcells[3][height] = 'r';
   for (int x = 0; x < width - 1; x++) {
     int b = calcIndex(width, x, 1);
     int c = calcIndex(width, x, height - 2);
-    sendbot[x] = field[b];
-    sendtop[x] = field[c];
+    sendcells[1][x] = field[b];
+    sendcells[0][x] = field[c];
   }
-  sendbot[width] = 'b';
-  sendtop[width] = 't';
+  sendcells[1][width] = 'b';
+  sendcells[0][width] = 't';
 
     MPI_Request request[8];
     MPI_Status status[8];
-    MPI_Isend(sendtop, width+1, MPI_CHAR, toprank, 1, cart_comm, &(request[0]));
-    MPI_Isend(sendbot, width+1, MPI_CHAR, botrank, 1, cart_comm, &(request[1]));
-    MPI_Isend(sendleft, height+1, MPI_CHAR, leftrank, 1, cart_comm, &(request[2]));
-    MPI_Isend(sendright, height+1, MPI_CHAR, rightrank, 1, cart_comm, &(request[3]));
+    MPI_Isend(sendcells[0], width+1, MPI_CHAR, toprank, 1, cart_comm, &(request[0]));
+    MPI_Isend(sendcells[1], width+1, MPI_CHAR, botrank, 1, cart_comm, &(request[1]));
+    MPI_Isend(sendcells[2], height+1, MPI_CHAR, leftrank, 1, cart_comm, &(request[2]));
+    MPI_Isend(sendcells[3], height+1, MPI_CHAR, rightrank, 1, cart_comm, &(request[3]));
 
     MPI_Irecv(recvcells[0], width+1, MPI_CHAR, toprank, 1, cart_comm, &(request[4]));
     MPI_Irecv(recvcells[1], width+1, MPI_CHAR, botrank, 1, cart_comm, &(request[5]));
