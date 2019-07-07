@@ -399,33 +399,33 @@ void apply_periodic_boundaries(char *field, int width, int height) {
     }
     //printf("%d after send and recved \n", rank_cart);
 
-    for (int z = 0; z < 2; k++) {
+    for (int k = 0; k < 2; k++) {
         printf("%d checking cells copy %c \n",rank_cart,recvcellstb[k][width] );
-        if (recvcellstb[z][width] == 'b') {
+        if (recvcellstb[k][width] == 'b') {
             for (int x = 0; x < width - 1; x++) {
                 int l = calcIndex(width, x, height - 1);
-                field[l] = recvcellstb[z][x];
+                field[l] = recvcellstb[k][x];
                 //printf("%d checking cells copy b \n");
             }
         }
-        if (recvcellstb[z][width] == 't') {
+        if (recvcellstb[k][width] == 't') {
             for (int x = 0; x < width - 1; x++) {
                 int m = calcIndex(width, x, 0);
-                field[m] = recvcellstb[z][x];
+                field[m] = recvcellstb[k][x];
                 //printf("%d checking cells copy t \n");
             }
         }
-        if (recvcellslr[z][width] == 'r') {
+        if (recvcellslr[k][width] == 'r') {
             for (int y = 0; y < height - 1; y++) {
                 int n = calcIndex(width, 0, y);
-                field[n] = recvcellslr[z][y];
+                field[n] = recvcellslr[k][y];
                 //printf("%d checking cells copy r \n");
             }
         }
-        if (recvcellslr[z][width] == 'l') {
+        if (recvcellslr[k][width] == 'l') {
             for (int y = 0; y < height - 1; y++) {
                 int o = calcIndex(width, width - 1, y);
-                field[o] = recvcellslr[z][y];
+                field[o] = recvcellslr[k][y];
                 //printf("%d checking cells copy l \n");
             }
         }
