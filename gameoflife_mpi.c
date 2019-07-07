@@ -397,10 +397,12 @@ void game (int width, int height, int num_timesteps, int gsizes[2]) {
   apply_periodic_boundaries(currentfield,width,height);
   int time = 0;
   write_field (currentfield, gsizes[X], gsizes[Y], time);
+  printf("%d out 7 \n",rank_cart );
   for (time = 1; time <= num_timesteps; time++) {
     evolve (currentfield, newfield, width, height);
+    printf("%d out 8 \n",rank_cart );
     write_field (newfield, gsizes[X], gsizes[Y], time);
-    printf("%d out 7 \n",rank_cart );
+    printf("%d out 9 \n",rank_cart );
     apply_periodic_boundaries(newfield,width,height);
     char *temp = currentfield;
     currentfield = newfield;
