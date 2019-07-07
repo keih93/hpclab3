@@ -283,8 +283,21 @@ void apply_periodic_boundaries(char * field, int width, int height){
   char recvsidecells = DEAD;
   MPI_Request request1[2];
   MPI_Status status1[2];
-  MPI_Isend(&sidecells, 2, MPI_CHAR, siderank[h], 1, cart_comm, &(request1[0]));
-  MPI_Irecv(&recvsidecells, 2, MPI_CHAR, siderank[h], 1, cart_comm, &(request1[1]));
+  switch (rank_cart) {
+    case 0:
+    MPI_Isend(&sidecells, 2, MPI_CHAR, 3, 1, cart_comm, &(request1[0]));
+    MPI_Irecv(&recvsidecells, 2, MPI_CHAR, 3, 1, cart_comm, &(request1[1]));
+    case 1:
+    MPI_Isend(&sidecells, 2, MPI_CHAR, 2, 1, cart_comm, &(request1[0]));
+    MPI_Irecv(&recvsidecells, 2, MPI_CHAR, 2, 1, cart_comm, &(request1[1]));
+    case 2:
+    MPI_Isend(&sidecells, 2, MPI_CHAR, 1, 1, cart_comm, &(request1[0]));
+    MPI_Irecv(&recvsidecells, 2, MPI_CHAR, 1, 1, cart_comm, &(request1[1]));
+    case 3:
+    MPI_Isend(&sidecells, 2, MPI_CHAR, 0, 1, cart_comm, &(request1[0]));
+    MPI_Irecv(&recvsidecells, 2, MPI_CHAR, 0, 1, cart_comm, &(request1[1]));
+}
+
   MPI_Waitall(2, request1, status1);
   // put side cells in place
   int a1, a2, a3, a4;
