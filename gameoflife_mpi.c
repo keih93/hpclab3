@@ -239,7 +239,7 @@ void apply_periodic_boundaries(char * field, int width, int height){
     MPI_Cart_rank(cart_comm, leftcoords,&leftrank);
   }
   // side cells
-  char sidecells[4];//sidedownleft, sideupleft, sidedownright, sideupright
+  char sidecells;//sidedownleft, sideupleft, sidedownright, sideupright
   //siderank
   int s;
   if((coords[0]-1) >= 0){
@@ -286,18 +286,11 @@ void apply_periodic_boundaries(char * field, int width, int height){
     countside++;
   }
   //send siderank
-  char recvsidecells[4] ={DEAD,DEAD,DEAD,DEAD};
-  MPI_Request request1[countside];
-  MPI_Status status1[countside];
-  for(int h = 0; h < countside; h++){
-    if(siderank[h] != num_tasks){
-      printf("%d hier1 %d \n",rank_cart,h);
-      MPI_Isend(&sidecells[h], 2, MPI_CHAR, siderank[h], 1, cart_comm, &(request1[h]));
-      printf("%d hier2 %d \n",rank_cart,h);
-      MPI_Irecv(&recvsidecells[h], 2, MPI_CHAR, siderank[h], 1, cart_comm, &(request1[h]));
-      printf("%d hier3 %d \n",rank_cart,h);
-    }
-  }
+  char recvsidecells = DEAD;
+  MPI_Request request1[2];
+  MPI_Status status1[2];
+  MPI_Isend(&sidecells, 2, MPI_CHAR, siderank[h], 1, cart_comm, &(request1[0]));
+  MPI_Irecv(&recvsidecells, 2, MPI_CHAR, siderank[h], 1, cart_comm, &(request1[1]));
   MPI_Waitall(countside, request1, status1);
   // put side cells in place
   int a1, a2, a3, a4;
