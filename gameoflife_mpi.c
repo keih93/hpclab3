@@ -378,12 +378,14 @@ void apply_periodic_boundaries(char * field, int width, int height){
       }
     }
     if(recvcellslr[i][width] == 'r'){
+      printf("%d right Received\n",rank_cart);
       for (int y = 0; y < height - 1; y++) {
           int l = calcIndex(width, 0, y);
           field[l] = recvcellslr[i][y];
       }
     }
     if(recvcellslr[i][width] == 'l'){
+      printf("%d left Received\n", rank_cart);
       for (int y = 0; y < height - 1; y++) {
           int u = calcIndex(width, width - 1, y);
           field[u] = recvcellslr[i][y];
