@@ -375,8 +375,8 @@ void apply_periodic_boundaries(char * field, int width, int height){
     }
     if(recvcells[i][width] == 'l'){
       for (int y = 0; y < height - 1; y++) {
-          int i = calcIndex(width, width - 1, y);
-          field[i] = recvcells[i][y];
+          int u = calcIndex(width, width - 1, y);
+          field[u] = recvcells[u][y];
       }
     }
   }
