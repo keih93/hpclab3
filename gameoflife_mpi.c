@@ -204,7 +204,7 @@ void filling_runner(char *currentfield, int width, int height) {
 
 void apply_periodic_boundaries(char *field, int width, int height) {
     //TODO: implement periodic boundary copies
-    printf("%d switching boundaries %d %d\n",rank_cart, width, height);
+    //printf("%d switching boundaries %d %d\n",rank_cart, width, height);
     char *sendcellstb[2];
     char *recvcellstb[2];
     char *sendcellslr[2];
@@ -315,16 +315,16 @@ void apply_periodic_boundaries(char *field, int width, int height) {
     MPI_Status status1[2 * countside];
     int numrequest = 0;
     for (int c = 0; c < 4; c++) {
-        printf("%d siderank %d num_tasks %d h %d \n", rank_cart, siderank[c], num_tasks, c);
+        //printf("%d siderank %d num_tasks %d h %d \n", rank_cart, siderank[c], num_tasks, c);
         if (siderank[c] != num_tasks) {
             MPI_Isend(&sidecells[c], 1, MPI_CHAR, siderank[c], 1, cart_comm, &(request1[numrequest]));
             MPI_Irecv(&recvsidecells[c], 1, MPI_CHAR, siderank[c], 1, cart_comm, &(request1[numrequest + 1]));
             numrequest = numrequest + 2;
-            printf("%d h %d numrequest1 %d \n", rank_cart, c, numrequest);
+            //printf("%d h %d numrequest1 %d \n", rank_cart, c, numrequest);
         }
     }
     if (countside != 0) {
-        printf("%d before MPI_Waitall countside %d request1 %d\n", rank_cart, countside,
+        //printf("%d before MPI_Waitall countside %d request1 %d\n", rank_cart, countside,
                (sizeof(request1) / sizeof(MPI_Request)));
         MPI_Waitall(countside, request1, status1);
     }
@@ -395,40 +395,40 @@ void apply_periodic_boundaries(char *field, int width, int height) {
         }
     }
     if (countneighbor != 0) {
-        printf("%d before MPI_Waitall countneighbor %d request %d\n", rank_cart, countneighbor,
+        //printf("%d before MPI_Waitall countneighbor %d request %d\n", rank_cart, countneighbor,
                (sizeof(request) / sizeof(MPI_Request)));
         MPI_Waitall(countside, request, status);
     }
-    printf("%d after send and recved \n", rank_cart);
+    //printf("%d after send and recved \n", rank_cart);
 
     for (int k = 0; k < 2; k++) {
-        printf("%d checking cells copy %c \n",rank_cart,recvcellstb[k][width] );
+        //printf("%d checking cells copy %c \n",rank_cart,recvcellstb[k][width] );
         if (recvcellstb[k][width] == 'b') {
             for (int x = 0; x < width - 1; x++) {
                 int l = calcIndex(width, x, height - 1);
                 field[l] = recvcellstb[k][x];
-                printf("%d checking cells copy b \n");
+                //printf("%d checking cells copy b \n");
             }
         }
         if (recvcellstb[k][width] == 't') {
             for (int x = 0; x < width - 1; x++) {
                 int m = calcIndex(width, x, 0);
                 field[m] = recvcellstb[k][x];
-                printf("%d checking cells copy t \n");
+                //printf("%d checking cells copy t \n");
             }
         }
         if (recvcellslr[k][width] == 'r') {
             for (int y = 0; y < height - 1; y++) {
                 int n = calcIndex(width, 0, y);
                 field[n] = recvcellslr[k][y];
-                printf("%d checking cells copy r \n");
+                //printf("%d checking cells copy r \n");
             }
         }
         if (recvcellslr[k][width] == 'l') {
             for (int y = 0; y < height - 1; y++) {
                 int o = calcIndex(width, width - 1, y);
                 field[o] = recvcellslr[k][y];
-                printf("%d checking cells copy l \n");
+                //printf("%d checking cells copy l \n");
             }
         }
     }
@@ -446,7 +446,7 @@ void game(int width, int height, int num_timesteps, int gsizes[2]) {
     apply_periodic_boundaries(currentfield, width, height);
     int time = 0;
     write_field(currentfield, gsizes[X], gsizes[Y], time);
-    printf("%d out 7 \n", rank_cart);
+    //printf("%d out 7 \n", rank_cart);
     for (time = 1; time <= num_timesteps; time++) {
         evolve(currentfield, newfield, width, height);
         // printf("%d out 8 \n", rank_cart);
