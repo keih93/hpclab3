@@ -284,12 +284,12 @@ void apply_periodic_boundaries(char * field, int width, int height){
       countside++;
     }
   //send siderank
-  MPI_Request request1[countside];
-  MPI_Status status1[countside];
+  MPI_Request request1[2*countside];
+  MPI_Status status1[2*countside];
   for(int h = 0; h < countside; h++){
     if(siderank[h] != num_tasks){
       MPI_Isend(&sidecells[h], 1, MPI_CHAR, siderank[h], 1, cart_comm, &(request1[h]));
-      MPI_Irecv(&recvsidecells[h], 1, MPI_CHAR, siderank[h], 1, cart_comm, &(request1[h]));
+      MPI_Irecv(&recvsidecells[h], 1, MPI_CHAR, siderank[h], 1, cart_comm, &(request1[h+1]));
       printf("%d h %d \n",rank_cart,countside,h );
     }
   }
