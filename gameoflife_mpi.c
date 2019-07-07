@@ -277,7 +277,12 @@ void apply_periodic_boundaries(char * field, int width, int height){
       sidecells[s] = field[ur];
     }
   }
-
+  //count number of sides
+    int countside = 0;
+    for(int h = 0; h < 4; h++){
+      if(siderank[h] != num_tasks)
+      countside++;
+    }
   //send siderank
   MPI_Request request1[countside];
   MPI_Status status1[countside];
