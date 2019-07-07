@@ -379,16 +379,21 @@ void apply_periodic_boundaries(char *field, int width, int height) {
         printf("%d neighborank %d num_tasks %d i %d \n", rank_cart, neighborank[i], num_tasks, i);
         if (neighborank[i] != num_tasks && neighborank[i] != rank_cart) {
           if(i < 2){
-            MPI_Isend(sendcellstb[i], width + 1, MPI_CHAR, neighborank[i], 1, cart_comm, &(request[numrequest1]));
-            MPI_Irecv(recvcellstb[i], width + 1, MPI_CHAR, neighborank[i], 1, cart_comm, &(request[numrequest1 + 1]));
-            numrequest1 = numrequest1 + 2;
+            MPI_Request request[2];
+            MPI_Status status[2];
+            MPI_Isend(sendcellstb[i], width + 1, MPI_CHAR, neighborank[i], 1, cart_comm, &(request[0]));
+            MPI_Irecv(recvcellstb[i], width + 1, MPI_CHAR, neighborank[i], 1, cart_comm, &(request[1]));
+            MPI_Waitall(countside, request, status);
             //printf("%d h %d numrequest %d recvcells %c sendcells %c \n", rank_cart, i, numrequest1, recvcellstb[i][width],sendcellstb[i][width]);
           }else{
             //printf("%d neighbor %d\n",rank_cart, neighborank[i]);
             //printf("%d h %d numrequest %d recvcells %c sendcells %c \n", rank_cart, i, numrequest1, recvcellslr[i-2][height],sendcellslr[i-2][height]);
-            MPI_Isend(sendcellslr[i-2], height + 1, MPI_CHAR, neighborank[i], 1, cart_comm, &(request[numrequest1]));
-            MPI_Irecv(recvcellslr[i-2], height + 1, MPI_CHAR, neighborank[i], 1, cart_comm, &(request[numrequest1 + 1]));
+            MPI_Request request[2];
+            MPI_Status status[2];
+            MPI_Isend(sendcellslr[i-2], height + 1, MPI_CHAR, neighborank[i], 1, cart_comm, &(request[0]));
+            MPI_Irecv(recvcellslr[i-2], height + 1, MPI_CHAR, neighborank[i], 1, cart_comm, &(request[1]));
             numrequest1 = numrequest1 + 2;
+            MPI_Waitall(countside, request, status);
             //printf("%d h %d numrequest %d recvcells %c sendcells %c \n", rank_cart, i, numrequest1, recvcellslr[i-2][height],sendcellslr[i-2][height]);
           }
         }
