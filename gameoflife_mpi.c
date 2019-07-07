@@ -185,16 +185,14 @@ void filling_runner (char * currentfield, int width, int height) {
   }
 }
 
-void apply_periodic_boundaries(char * field, int width, int height){
+void apply_periodic_boundaries(char * field, int width, int height, char* sendcells, char* recvcells){
   //TODO: implement periodic boundary copies
-  char* sendtop =calloc (width+1, sizeof(char));
- char* sendbot =calloc (width+1, sizeof(char));
- char* sendleft =calloc (height+1, sizeof(char));
- char* sendright =calloc (height+1, sizeof(char));
- char* recvcells[4]; //[width+1], recvbot[width+1], recvleft[height+1],recvright[height+1];
- for(int i = 0; i<4; i++){
-     recvcells[i] = calloc (height+1, sizeof(char));;
- }
+  char* sendcells[4];
+  char* recvcells[4];
+  for(int i = 0; i<4; i++){
+     recvcells[i] = calloc (height+1, sizeof(char));
+     sendcells[i] = calloc (width+1, sizeof(char));
+  }
   printf("switching boundaries\n");
   int toprank, botrank, leftrank, rightrank;
   int siderank[4] = {num_tasks,num_tasks,num_tasks,num_tasks};
@@ -344,15 +342,15 @@ void apply_periodic_boundaries(char * field, int width, int height){
 
     MPI_Request request[8];
     MPI_Status status[8];
-    MPI_Isend(sendtop, width+2, MPI_CHAR, toprank, 1, cart_comm, &(request[0]));
-    MPI_Isend(sendbot, width+2, MPI_CHAR, botrank, 1, cart_comm, &(request[1]));
-    MPI_Isend(sendleft, height+2, MPI_CHAR, leftrank, 1, cart_comm, &(request[2]));
-    MPI_Isend(sendright, height+2, MPI_CHAR, rightrank, 1, cart_comm, &(request[3]));
+    MPI_Isend(sendtop, width+1, MPI_CHAR, toprank, 1, cart_comm, &(request[0]));
+    MPI_Isend(sendbot, width+1, MPI_CHAR, botrank, 1, cart_comm, &(request[1]));
+    MPI_Isend(sendleft, height+1, MPI_CHAR, leftrank, 1, cart_comm, &(request[2]));
+    MPI_Isend(sendright, height+1, MPI_CHAR, rightrank, 1, cart_comm, &(request[3]));
 
-    MPI_Irecv(recvcells[0], width+2, MPI_CHAR, toprank, 1, cart_comm, &(request[4]));
-    MPI_Irecv(recvcells[1], width+2, MPI_CHAR, botrank, 1, cart_comm, &(request[5]));
-    MPI_Irecv(recvcells[2], height+2, MPI_CHAR, leftrank, 1, cart_comm, &(request[6]));
-    MPI_Irecv(recvcells[3], height+2, MPI_CHAR, rightrank, 1, cart_comm, &(request[7]));
+    MPI_Irecv(recvcells[0], width+1, MPI_CHAR, toprank, 1, cart_comm, &(request[4]));
+    MPI_Irecv(recvcells[1], width+1, MPI_CHAR, botrank, 1, cart_comm, &(request[5]));
+    MPI_Irecv(recvcells[2], height+1, MPI_CHAR, leftrank, 1, cart_comm, &(request[6]));
+    MPI_Irecv(recvcells[3], height+1, MPI_CHAR, rightrank, 1, cart_comm, &(request[7]));
     MPI_Waitall(8, request, status);
 printf("%d out\n",rank_cart );
   for(int i = 0; i < 4; i++){
@@ -386,7 +384,7 @@ printf("%d out\n",rank_cart );
 void game (int width, int height, int num_timesteps, int gsizes[2]) {
   char *currentfield = calloc (width * height, sizeof(char));
   char *newfield = calloc (width * height, sizeof(char));
-
+  //variables for switching boudaries
   //filling_random (currentfield, width, height);
   if(rank_cart == 0)
   filling_runner1 (currentfield, width, height);
@@ -402,7 +400,6 @@ void game (int width, int height, int num_timesteps, int gsizes[2]) {
     currentfield = newfield;
     newfield = temp;
   }
-
   free (currentfield);
   free (newfield);
 }
