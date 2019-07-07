@@ -362,7 +362,7 @@ for(int h = 0; h < 4; h++){
     printf("%d h %d numrequest %d \n",rank_cart,h, numrequest1 );
   }
 }
-if(countside != 0){
+if(countneighbor != 0){
 printf("%d before MPI_Waitall countneighbor %d request %d\n",rank_cart,countneighbor,(sizeof(request)/sizeof(MPI_Request)));
 MPI_Waitall(countside, request, status);
 }
