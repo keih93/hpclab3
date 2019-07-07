@@ -324,8 +324,7 @@ void apply_periodic_boundaries(char *field, int width, int height) {
         }
     }
     if (countside != 0) {
-        //printf("%d before MPI_Waitall countside %d request1 %d\n", rank_cart, countside,
-               (sizeof(request1) / sizeof(MPI_Request)));
+        //printf("%d before MPI_Waitall countside %d request1 %d\n", rank_cart, countside,(sizeof(request1) / sizeof(MPI_Request)));
         MPI_Waitall(countside, request1, status1);
     }
     //printf("%d out\n", rank_cart);
@@ -395,8 +394,7 @@ void apply_periodic_boundaries(char *field, int width, int height) {
         }
     }
     if (countneighbor != 0) {
-        //printf("%d before MPI_Waitall countneighbor %d request %d\n", rank_cart, countneighbor,
-               (sizeof(request) / sizeof(MPI_Request)));
+        //printf("%d before MPI_Waitall countneighbor %d request %d\n", rank_cart, countneighbor,(sizeof(request) / sizeof(MPI_Request)));
         MPI_Waitall(countside, request, status);
     }
     //printf("%d after send and recved \n", rank_cart);
