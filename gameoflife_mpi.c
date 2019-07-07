@@ -204,7 +204,7 @@ void filling_runner(char *currentfield, int width, int height) {
 
 void apply_periodic_boundaries(char *field, int width, int height) {
     //TODO: implement periodic boundary copies
-    printf("switching boundaries\n");
+    printf("%d switching boundaries %d %d\n",rank_cart, width, height);
     char *sendcells[4];
     char *recvcells[4];
     for (int a = 0; a < 4; a++) {
