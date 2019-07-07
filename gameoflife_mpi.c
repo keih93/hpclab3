@@ -207,9 +207,9 @@ void apply_periodic_boundaries(char *field, int width, int height) {
     printf("switching boundaries\n");
     char *sendcells[4];
     char *recvcells[4];
-    for (int i = 0; i < 4; i++) {
-        recvcells[i] = calloc(height + 1, sizeof(char));
-        sendcells[i] = calloc(width + 1, sizeof(char));
+    for (int a = 0; a < 4; a++) {
+        recvcells[a] = calloc(height + 1, sizeof(char));
+        sendcells[a] = calloc(width + 1, sizeof(char));
     }
     int neighborank[4] = {num_tasks, num_tasks, num_tasks, num_tasks};//, botrank, leftrank, rightrank;
     int siderank[4] = {num_tasks, num_tasks, num_tasks, num_tasks};
@@ -298,21 +298,21 @@ void apply_periodic_boundaries(char *field, int width, int height) {
     //count number of sides and neighbors
     int countside = 0;
     int countneighbor = 0;
-    for (int h = 0; h < 4; h++) {
-        if (siderank[h] != num_tasks)
+    for (int b = 0; b < 4; b++) {
+        if (siderank[b] != num_tasks)
             countside++;
-        if (neighborank[h] != num_tasks && neighborank[h] != rank_cart)
+        if (neighborank[b] != num_tasks && neighborank[b] != rank_cart)
             countneighbor++;
     }
     //send siderank
     MPI_Request request1[2 * countside];
     MPI_Status status1[2 * countside];
     int numrequest = 0;
-    for (int h = 0; h < 4; h++) {
-        printf("%d siderank %d num_tasks %d h %d \n", rank_cart, siderank[h], num_tasks, h);
-        if (siderank[h] != num_tasks) {
-            MPI_Isend(&sidecells[h], 1, MPI_CHAR, siderank[h], 1, cart_comm, &(request1[numrequest]));
-            MPI_Irecv(&recvsidecells[h], 1, MPI_CHAR, siderank[h], 1, cart_comm, &(request1[numrequest + 1]));
+    for (int c = 0; c < 4; c++) {
+        printf("%d siderank %d num_tasks %d h %d \n", rank_cart, siderank[c], num_tasks, c);
+        if (siderank[c] != num_tasks) {
+            MPI_Isend(&sidecells[c], 1, MPI_CHAR, siderank[c], 1, cart_comm, &(request1[numrequest]));
+            MPI_Irecv(&recvsidecells[c], 1, MPI_CHAR, siderank[h], 1, cart_comm, &(request1[numrequest + 1]));
             numrequest = numrequest + 2;
             printf("%d h %d numrequest1 %d \n", rank_cart, h, numrequest);
         }
@@ -325,24 +325,24 @@ void apply_periodic_boundaries(char *field, int width, int height) {
     printf("%d out\n", rank_cart);
     // put side cells in place
     int a1, a2, a3, a4;
-    for (int h = 0; h < 4; h++) {
-        if (siderank[h] < num_tasks) {
-            switch (h) {
+    for (int d = 0; d < 4; d++) {
+        if (siderank[d] < num_tasks) {
+            switch (d) {
                 case 0:
                     a1 = calcIndex(width, 0, 0);
-                    field[a1] = recvsidecells[h];
+                    field[a1] = recvsidecells[d];
                     break;
                 case 1:
                     a2 = calcIndex(width, 0, height - 1);
-                    field[a2] = recvsidecells[h];
+                    field[a2] = recvsidecells[d];
                     break;
                 case 2:
                     a3 = calcIndex(width, width - 1, 0);
-                    field[a3] = recvsidecells[h];
+                    field[a3] = recvsidecells[d];
                     break;
                 case 3:
                     a4 = calcIndex(width, width - 1, height - 1);
-                    field[a4] = recvsidecells[h];
+                    field[a4] = recvsidecells[d];
                     break;
             }
         }
@@ -350,18 +350,18 @@ void apply_periodic_boundaries(char *field, int width, int height) {
     printf("%d out 2\n", rank_cart);
     //prepare sendcells
     for (int y = 0; y < height - 1; y++) {
-        int j = calcIndex(width, 1, y);
-        int k = calcIndex(width, width - 2, y);
-        sendcells[2][y] = field[j];
-        sendcells[3][y] = field[k];
+        int e = calcIndex(width, 1, y);
+        int f = calcIndex(width, width - 2, y);
+        sendcells[2][y] = field[e];
+        sendcells[3][y] = field[f];
     }
     sendcells[2][height] = 'l';
     sendcells[3][height] = 'r';
     for (int x = 0; x < width - 1; x++) {
-        int b = calcIndex(width, x, 1);
-        int c = calcIndex(width, x, height - 2);
-        sendcells[1][x] = field[b];
-        sendcells[0][x] = field[c];
+        int g = calcIndex(width, x, 1);
+        int h = calcIndex(width, x, height - 2);
+        sendcells[1][x] = field[g];
+        sendcells[0][x] = field[h];
     }
     sendcells[1][width] = 'b';
     sendcells[0][width] = 't';
@@ -370,13 +370,13 @@ void apply_periodic_boundaries(char *field, int width, int height) {
     MPI_Request request[2 * countneighbor];
     MPI_Status status[2 * countneighbor];
     int numrequest1 = 0;
-    for (int h = 0; h < 4; h++) {
-        printf("%d neighborank %d num_tasks %d h %d \n", rank_cart, neighborank[h], num_tasks, h);
-        if (neighborank[h] != num_tasks && neighborank[h] != rank_cart) {
-            MPI_Isend(&sendcells[h], width + 1, MPI_CHAR, neighborank[h], 1, cart_comm, &(request[numrequest1]));
-            MPI_Irecv(&recvcells[h], width + 1, MPI_CHAR, neighborank[h], 1, cart_comm, &(request[numrequest1 + 1]));
+    for (int i = 0; i < 4; i++) {
+        printf("%d neighborank %d num_tasks %d h %d \n", rank_cart, neighborank[i], num_tasks, i);
+        if (neighborank[i] != num_tasks && neighborank[h] != rank_cart) {
+            MPI_Isend(&sendcells[i], width + 1, MPI_CHAR, neighborank[i], 1, cart_comm, &(request[numrequest1]));
+            MPI_Irecv(&recvcells[i], width + 1, MPI_CHAR, neighborank[i], 1, cart_comm, &(request[numrequest1 + 1]));
             numrequest1 = numrequest1 + 2;
-            printf("%d h %d numrequest %d \n", rank_cart, h, numrequest1);
+            printf("%d h %d numrequest %d \n", rank_cart, i, numrequest1);
         }
     }
     if (countneighbor != 0) {
@@ -386,32 +386,32 @@ void apply_periodic_boundaries(char *field, int width, int height) {
     }
     printf("%d after send and recved \n", rank_cart);
 
-    for (int i = 0; i < 4; i++) {
-        if (recvcells[i][width] == 'b') {
+    for (int k = 0; k < 4; i++) {
+        if (recvcells[k][width] == 'b') {
             for (int x = 0; x < width - 1; x++) {
-                int a = calcIndex(width, x, height - 1);
-                field[a] = recvcells[i][x];
+                int l = calcIndex(width, x, height - 1);
+                field[l] = recvcells[k][x];
                 printf("%d checking cells copy b \n");
             }
         }
-        if (recvcells[i][width] == 't') {
+        if (recvcells[k][width] == 't') {
             for (int x = 0; x < width - 1; x++) {
-                int d = calcIndex(width, x, 0);
-                field[d] = recvcells[i][x];
+                int m = calcIndex(width, x, 0);
+                field[m] = recvcells[i][x];
                 printf("%d checking cells copy t \n");
             }
         }
-        if (recvcells[i][width] == 'r') {
+        if (recvcells[k][width] == 'r') {
             for (int y = 0; y < height - 1; y++) {
-                int l = calcIndex(width, 0, y);
-                field[l] = recvcells[i][y];
+                int n = calcIndex(width, 0, y);
+                field[n] = recvcells[k][y];
                 printf("%d checking cells copy r \n");
             }
         }
-        if (recvcells[i][width] == 'l') {
+        if (recvcells[k][width] == 'l') {
             for (int y = 0; y < height - 1; y++) {
-                int u = calcIndex(width, width - 1, y);
-                field[u] = recvcells[i][y];
+                int o = calcIndex(width, width - 1, y);
+                field[o] = recvcells[k][y];
                 printf("%d checking cells copy l \n");
             }
         }
