@@ -306,7 +306,7 @@ void apply_periodic_boundaries(char * field, int width, int height){
     MPI_Irecv(&recvsidecells, 1, MPI_CHAR, 0, 1, cart_comm, &(request1[1]));
     break;
 }
-
+printf("%d out\n",rank_cart );
   MPI_Waitall(2, request1, status1);
   // put side cells in place
   int a1, a2, a3, a4;
