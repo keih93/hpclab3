@@ -362,7 +362,7 @@ void apply_periodic_boundaries(char * field, int width, int height){
     MPI_Irecv(recvcellslr[0], height+1, MPI_CHAR, leftrank, 1, cart_comm, &(request[2]));
     MPI_Irecv(recvcellslr[1], height+1, MPI_CHAR, rightrank, 1, cart_comm, &(request[3]));
     MPI_Waitall(4, request, status);
-
+    printf("send %c received %c \n",sendcellslr[0][height],recvcellslr[0][height]);
 
   for(int i = 0; i < 2; i++){
     if(recvcellstb[i][width] == 'b'){
