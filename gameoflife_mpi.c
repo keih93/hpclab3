@@ -298,7 +298,7 @@ void apply_periodic_boundaries(char * field, int width, int height){
       MPI_Isend(&sidecells[h], 1, MPI_CHAR, siderank[h], 1, cart_comm, &(request1[numrequest]));
       MPI_Irecv(&recvsidecells[h], 1, MPI_CHAR, siderank[h], 1, cart_comm, &(request1[numrequest+1]));
       numrequest = numrequest +2;
-      printf("%d h %d numrequest %d \n",rank_cart,h, numrequest );
+      printf("%d h %d numrequest1 %d \n",rank_cart,h, numrequest );
     }
   }
   if(countside != 0){
@@ -354,7 +354,7 @@ MPI_Request request[2*countneighbor];
 MPI_Status status[2*countneighbor];
 int numrequest1 = 0;
 for(int h = 0; h < 4; h++){
-  printf("%d siderank %d num_tasks %d h %d \n",rank_cart,neighborank[h], num_tasks,h);
+  printf("%d neighborank %d num_tasks %d h %d \n",rank_cart,neighborank[h], num_tasks,h);
   if(neighborank[h] != num_tasks && neighborank[h] != rank_cart){
     MPI_Isend(&sendcells[h], width+1, MPI_CHAR, neighborank[h], 1, cart_comm, &(request1[numrequest1]));
     MPI_Irecv(&recvcells[h], width+1, MPI_CHAR, neighborank[h], 1, cart_comm, &(request1[numrequest1+1]));
