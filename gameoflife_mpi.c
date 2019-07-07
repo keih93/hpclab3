@@ -286,7 +286,7 @@ void apply_periodic_boundaries(char * field, int width, int height){
   //send siderank
   MPI_Request request1[2*countside];
   MPI_Status status1[2*countside];
-  for(int h = 0; h < countside; h++){
+  for(int h = 0; h < 4; h++){
     printf("%d siderank %d num_tasks %d h %d \n",rank_cart,siderank[h], num_tasks,h );
     if(siderank[h] != num_tasks){
       MPI_Isend(&sidecells[h], 1, MPI_CHAR, siderank[h], 1, cart_comm, &(request1[h]));
@@ -299,7 +299,7 @@ void apply_periodic_boundaries(char * field, int width, int height){
   printf("%d out\n",rank_cart );
   // put side cells in place
   int a1, a2, a3, a4;
-  for(int h = 0; h < countside; h++){
+  for(int h = 0; h < 4; h++){
    if(siderank[h] < num_tasks){
       switch (h) {
         case 0:
