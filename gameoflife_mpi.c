@@ -75,13 +75,14 @@ void create_vtk_header (char * header, int width, int height, int timestep) {
 
 
 void write_field (char* currentfield, int width, int height, int timestep) {
+printf(" %d writting step %d \n",rank_cart,timestep );
   if (timestep == 0){
     if(rank_cart == 0) {
       mkdir("./gol/", 0777);
     }
     create_vtk_header (vtk_header, width, height, timestep);
   }
-printf(" %d writting step %d \n",rank_cart,timestep );
+
   char filename[1024];
   snprintf (filename, 1024, "./gol/gol-%05d.vtk", timestep);
   MPI_Offset header_offset = (MPI_Offset)strlen(vtk_header);
@@ -391,10 +392,10 @@ void game (int width, int height, int num_timesteps, int gsizes[2]) {
   char *newfield = calloc (width * height, sizeof(char));
   //variables for switching boudaries
   //filling_random (currentfield, width, height);
-  if(rank_cart == 1)
-  filling_runner1 (currentfield, width, height);
-  //filling_rank (currentfield, width, height);
-  apply_periodic_boundaries(currentfield,width,height);
+  //if(rank_cart == 1)
+  //filling_runner1 (currentfield, width, height);
+  filling_rank (currentfield, width, height);
+  //apply_periodic_boundaries(currentfield,width,height);
   int time = 0;
   write_field (currentfield, gsizes[X], gsizes[Y], time);
   printf("%d out 7 \n",rank_cart );
@@ -403,7 +404,7 @@ void game (int width, int height, int num_timesteps, int gsizes[2]) {
     printf("%d out 8 \n",rank_cart );
     write_field (newfield, gsizes[X], gsizes[Y], time);
     printf("%d out 9 \n",rank_cart );
-    apply_periodic_boundaries(newfield,width,height);
+    //apply_periodic_boundaries(newfield,width,height);
     char *temp = currentfield;
     currentfield = newfield;
     newfield = temp;
