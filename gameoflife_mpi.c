@@ -400,7 +400,7 @@ void apply_periodic_boundaries(char *field, int width, int height) {
     //printf("%d after send and recved \n", rank_cart);
 
     for (int z = 0; z < 2; z++) {
-        printf("%d checking cells copy %c z %d \n",rank_cart,recvcellstb[z][width],z );
+        printf("%d checking cells copy %c \n",rank_cart,recvcellstb[z][width] );
         if (recvcellstb[z][width] == 'b') {
             for (int x = 0; x < width - 1; x++) {
                 int l = calcIndex(width, x, height - 1);
