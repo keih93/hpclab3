@@ -291,11 +291,11 @@ void apply_periodic_boundaries(char * field, int width, int height){
   MPI_Status status1[countside];
   for(int h = 0; h < countside; h++){
     if(siderank[h] != num_tasks){
-      printf("hier1 \n");
+      printf("hier1 %d \n",h);
       MPI_Isend(&sidecells[h], 2, MPI_CHAR, siderank[h], 1, cart_comm, &(request1[h]));
-      printf("hier2 \n");
+      printf("hier2 %d \n",h);
       MPI_Irecv(&recvsidecells[h], 2, MPI_CHAR, siderank[h], 1, cart_comm, &(request1[h]));
-      printf("hier3 \n");
+      printf("hier3 %d \n",h);
     }
   }
   MPI_Waitall(countside, request1, status1);
