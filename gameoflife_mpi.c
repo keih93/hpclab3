@@ -290,9 +290,10 @@ void apply_periodic_boundaries(char * field, int width, int height){
     if(siderank[h] != num_tasks){
       MPI_Isend(&sidecells[h], 1, MPI_CHAR, siderank[h], 1, cart_comm, &(request1[h]));
       MPI_Irecv(&recvsidecells[h], 1, MPI_CHAR, siderank[h], 1, cart_comm, &(request1[h]));
+      printf("%d h %d \n",rank_cart,countside,h );
     }
   }
-  printf("%d before MPI_Waitall countside %d h %d \n",rank_cart,countside,h );
+  printf("%d before MPI_Waitall countside %d\n",rank_cart,countside);
   MPI_Waitall(countside, request1, status1);
   printf("%d out\n",rank_cart );
   // put side cells in place
