@@ -289,18 +289,22 @@ void apply_periodic_boundaries(char * field, int width, int height){
     printf("%d hier10\n",rank_cart );
     MPI_Isend(&sidecells, 1, MPI_CHAR, 3, 1, cart_comm, &(request1[0]));
     MPI_Irecv(&recvsidecells, 1, MPI_CHAR, 3, 1, cart_comm, &(request1[1]));
+    break;
     case 1:
     printf("%d hier11\n",rank_cart );
     MPI_Isend(&sidecells, 1, MPI_CHAR, 2, 1, cart_comm, &(request1[0]));
     MPI_Irecv(&recvsidecells, 1, MPI_CHAR, 2, 1, cart_comm, &(request1[1]));
+    break;
     case 2:
     printf("%d hier12\n",rank_cart );
     MPI_Isend(&sidecells, 1, MPI_CHAR, 1, 1, cart_comm, &(request1[0]));
     MPI_Irecv(&recvsidecells, 1, MPI_CHAR, 1, 1, cart_comm, &(request1[1]));
+    break;
     case 3:
     printf("%d hier13\n",rank_cart );
     MPI_Isend(&sidecells, 1, MPI_CHAR, 0, 1, cart_comm, &(request1[0]));
     MPI_Irecv(&recvsidecells, 1, MPI_CHAR, 0, 1, cart_comm, &(request1[1]));
+    break;
 }
 
   MPI_Waitall(2, request1, status1);
