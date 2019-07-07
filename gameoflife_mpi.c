@@ -188,12 +188,18 @@ void filling_runner (char * currentfield, int width, int height) {
 void apply_periodic_boundaries(char * field, int width, int height){
   //TODO: implement periodic boundary copies
   printf("switching boundaries\n");
-  char* sendcells[4];
-  char* recvcells[4];
-  for(int i = 0; i<4; i++){
-     recvcells[i] = calloc (height+1, sizeof(char));
-     sendcells[i] = calloc (width+1, sizeof(char));
-  }
+    char *sendcellstb[2];
+    char *recvcellstb[2];
+    char *sendcellslr[2];
+    char *recvcellslr[2];
+    for (int a = 0; a < 2; a++) {
+        recvcellstb[a] = calloc(width + 1, sizeof(char));
+        sendcellstb[a] = calloc(width + 1, sizeof(char));
+    }
+    for (int a = 0; a < 2; a++) {
+        recvcellslr[a] = calloc(height + 1, sizeof(char));
+        sendcellslr[a] = calloc(height + 1, sizeof(char));
+    }
   int toprank, botrank, leftrank, rightrank;
   int siderank[4] = {num_tasks,num_tasks,num_tasks,num_tasks};
   int topcoords[2], botcoords[2], leftcoords[2], rightcoords[2];
@@ -323,61 +329,64 @@ void apply_periodic_boundaries(char * field, int width, int height){
       }
     }
   }
+
   //prepare sendcells
-  for (int y = 0; y < height - 1; y++) {
-      int j = calcIndex(width, 1, y);
-      int k = calcIndex(width, width - 2, y);
-      sendcells[2][y] = field[j];
-      sendcells[3][y] = field[k];
-  }
-  sendcells[2][height] = 'l';
-  sendcells[3][height] = 'r';
   for (int x = 0; x < width - 1; x++) {
     int b = calcIndex(width, x, 1);
     int c = calcIndex(width, x, height - 2);
-    sendcells[1][x] = field[b];
-    sendcells[0][x] = field[c];
+    sendcellstb[0][x] = field[c];
+    sendcellstb[1][x] = field[b];
   }
-  sendcells[1][width] = 'b';
-  sendcells[0][width] = 't';
+  //mark the buffer top or bottom
+  sendcellstb[0][width] = 't';
+  sendcellstb[1][width] = 'b';
+  for (int y = 0; y < height - 1; y++) {
+      int j = calcIndex(width, 1, y);
+      int k = calcIndex(width, width - 2, y);
+      sendcellslr[0][y] = field[j];
+      sendcellslr[1][y] = field[k];
+  }
+  //mark the buffer left or right
+  sendcellslr[0][height] = 'l';
+  sendcellslr[1][height] = 'r';
 
     MPI_Request request[8];
     MPI_Status status[8];
-    MPI_Isend(sendcells[0], width+1, MPI_CHAR, toprank, 1, cart_comm, &(request[0]));
-    MPI_Isend(sendcells[1], width+1, MPI_CHAR, botrank, 1, cart_comm, &(request[1]));
-    MPI_Isend(sendcells[2], height+1, MPI_CHAR, leftrank, 1, cart_comm, &(request[2]));
-    MPI_Isend(sendcells[3], height+1, MPI_CHAR, rightrank, 1, cart_comm, &(request[3]));
+    MPI_Isend(sendcellstb[0], width+1, MPI_CHAR, toprank, 1, cart_comm, &(request[0]));
+    MPI_Isend(sendcellstb[1], width+1, MPI_CHAR, botrank, 1, cart_comm, &(request[1]));
+    MPI_Isend(sendcellslr[0], height+1, MPI_CHAR, leftrank, 1, cart_comm, &(request[2]));
+    MPI_Isend(sendcellslr[1], height+1, MPI_CHAR, rightrank, 1, cart_comm, &(request[3]));
 
-    MPI_Irecv(recvcells[0], width+1, MPI_CHAR, toprank, 1, cart_comm, &(request[4]));
-    MPI_Irecv(recvcells[1], width+1, MPI_CHAR, botrank, 1, cart_comm, &(request[5]));
-    MPI_Irecv(recvcells[2], height+1, MPI_CHAR, leftrank, 1, cart_comm, &(request[6]));
-    MPI_Irecv(recvcells[3], height+1, MPI_CHAR, rightrank, 1, cart_comm, &(request[7]));
+    MPI_Irecv(recvcellstb[0], width+1, MPI_CHAR, toprank, 1, cart_comm, &(request[4]));
+    MPI_Irecv(recvcellstb[1], width+1, MPI_CHAR, botrank, 1, cart_comm, &(request[5]));
+    MPI_Irecv(recvcellslr[0], height+1, MPI_CHAR, leftrank, 1, cart_comm, &(request[6]));
+    MPI_Irecv(recvcellslr[1], height+1, MPI_CHAR, rightrank, 1, cart_comm, &(request[7]));
     MPI_Waitall(8, request, status);
 
 
-  for(int i = 0; i < 4; i++){
+  for(int i = 0; i < 2; i++){
     if(recvcells[i][width] == 'b'){
       for (int x = 0; x < width - 1; x++) {
         int a = calcIndex(width, x, height - 1);
-        field[a] = recvcells[i][x];
+        field[a] = recvcellstb[i][x];
       }
     }
     if(recvcells[i][width] == 't'){
       for (int x = 0; x < width - 1; x++) {
         int d = calcIndex(width, x, 0);
-        field[d] = recvcells[i][x];
+        field[d] = recvcellstb[i][x];
       }
     }
     if(recvcells[i][width] == 'r'){
       for (int y = 0; y < height - 1; y++) {
           int l = calcIndex(width, 0, y);
-          field[l] = recvcells[i][y];
+          field[l] = recvcellslr[i][y];
       }
     }
     if(recvcells[i][width] == 'l'){
       for (int y = 0; y < height - 1; y++) {
           int u = calcIndex(width, width - 1, y);
-          field[u] = recvcells[i][y];
+          field[u] = recvcellslr[i][y];
       }
     }
   }
