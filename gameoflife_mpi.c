@@ -329,6 +329,36 @@ void apply_periodic_boundaries(char * field, int width, int height){
       }
     }
   }
+  // corner cells
+  char sendcornercells = DEAD;
+  char recvcornercells = DEAD;
+  int cornerrank = num_tasks;
+  if(coords[0] == 0){
+    if(coords[1] == 0){
+      MPI_Cart_rank(cart_comm, maxcoords,&cornerrank);
+      int cornercellsindex = calcIndex(width, 1, 1);
+      sendcornercells = field[cornercellsindex];
+    }else if(coords[1] == maxcoords[1]){
+      MPI_Cart_rank(cart_comm, {maxcoords[0],0},&cornerrank);
+      int cornercellsindex = calcIndex(width, 1,height-2 );
+      sendcornercells = field[cornercellsindex];
+    }
+  }else if(coords[0] == maxcoords[0]){
+    if(coords[1] == 0){
+      MPI_Cart_rank(cart_comm, {0,maxcoords[0]},&cornerrank);
+      int cornercellsindex = calcIndex(width, width-2, 1);
+      sendcornercells = field[cornercellsindex];
+    }else if(coords[1] == maxcoords[1]){
+      MPI_Cart_rank(cart_comm,{0,0},&cornerrank);
+      int cornercellsindex = calcIndex(width, width-2, height-2);
+      sendcornercells = field[cornercellsindex];
+    }
+  }
+  MPI_Request request2[2];
+  MPI_Status status2[2];
+  MPI_Isend(sendcornercells, 1, MPI_CHAR, cornerrank, 1, cart_comm, &(request2[0]));
+  MPI_Irecv(recvcornercells, 1, MPI_CHAR, cornerrank, 1, cart_comm, &(request2[1]));
+  MPI_Waitall(2, request2, status2);
 
   //prepare sendcells
   for (int x = 0; x < width - 1; x++) {
