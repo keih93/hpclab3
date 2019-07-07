@@ -383,12 +383,12 @@ void apply_periodic_boundaries(char *field, int width, int height) {
             MPI_Isend(&sendcellstb[i], width + 1, MPI_CHAR, neighborank[i], 1, cart_comm, &(request[numrequest1]));
             MPI_Irecv(&recvcellstb[i], width + 1, MPI_CHAR, neighborank[i], 1, cart_comm, &(request[numrequest1 + 1]));
             numrequest1 = numrequest1 + 2;
-            printf("%d h %d numrequest %d recvcells %c sendcells %c \n", rank_cart, i, numrequest1, recvcells[i][width],sendcells[i][width]);
+            printf("%d h %d numrequest %d recvcells %c sendcells %c \n", rank_cart, i, numrequest1, recvcellstb[i][width],sendcellstb[i][width]);
           }else{
             MPI_Isend(&sendcellslr[i], height + 1, MPI_CHAR, neighborank[i], 1, cart_comm, &(request[numrequest1]));
             MPI_Irecv(&recvcellslr[i], height + 1, MPI_CHAR, neighborank[i], 1, cart_comm, &(request[numrequest1 + 1]));
             numrequest1 = numrequest1 + 2;
-            printf("%d h %d numrequest %d recvcells %c sendcells %c \n", rank_cart, i, numrequest1, recvcells[i][width],sendcells[i][width]);
+            printf("%d h %d numrequest %d recvcells %c sendcells %c \n", rank_cart, i, numrequest1, recvcellslr[i][width],sendcellslr[i][width]);
           }
         }
     }
