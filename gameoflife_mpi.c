@@ -291,19 +291,27 @@ void apply_periodic_boundaries(char * field, int width, int height){
 
   // put side cells in place
   int a1, a2, a3, a4;
-      switch (rank_cart) {
-        case 3:
+  for(int h = 0; h < countside; h++){
+   if(siderank[h] < num_tasks){
+      switch (h) {
+        case 0:
         a1 = calcIndex(width, 0, 0);
-        field[a1] = recvsidecells;
+        field[a1] = recvsidecells[h];
+        break;
         case 1:
         a2 = calcIndex(width, 0, height - 1);
-        field[a2] = recvsidecells;
+        field[a2] = recvsidecells[h];
+        break;
         case 2:
         a3 = calcIndex(width, width-1, 0);
-        field[a3] = recvsidecells;
-        case 0:
+        field[a3] = recvsidecells[h];
+        break;
+        case 3:
         a4 = calcIndex(width, width-1, height - 1);
-        field[a4] = recvsidecells;
+        field[a4] = recvsidecells[h];
+        break;
+      }
+    }
   }
   //prepare sendcells
   for (int y = 0; y < height - 1; y++) {
