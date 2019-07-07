@@ -303,134 +303,108 @@ void apply_periodic_boundaries(char *field, int width, int height) {
     }
     //count number of sides and neighbors
     int countside = 0;
-    int countneighbor = 0;
-    for (int b = 0; b < 4; b++) {
-        if (siderank[b] != num_tasks)
-            countside++;
-        if (neighborank[b] != num_tasks && neighborank[b] != rank_cart)
-            countneighbor++;
+    for(int h = 0; h < 4; h++){
+      if(siderank[h] != num_tasks)
+      countside++;
     }
-    //send siderank
-    MPI_Request request1[2 * countside];
-    MPI_Status status1[2 * countside];
-    int numrequest = 0;
-    for (int c = 0; c < 4; c++) {
-        //printf("%d siderank %d num_tasks %d h %d \n", rank_cart, siderank[c], num_tasks, c);
-        if (siderank[c] != num_tasks) {
-            MPI_Isend(&sidecells[c], 1, MPI_CHAR, siderank[c], 1, cart_comm, &(request1[numrequest]));
-            MPI_Irecv(&recvsidecells[c], 1, MPI_CHAR, siderank[c], 1, cart_comm, &(request1[numrequest + 1]));
-            numrequest = numrequest + 2;
-            //printf("%d h %d numrequest1 %d \n", rank_cart, c, numrequest);
-        }
+  //send siderank
+  MPI_Request request1[2*countside];
+  MPI_Status status1[2*countside];
+  int numrequest = 0;
+  for(int h = 0; h < 4; h++){
+    printf("%d siderank %d num_tasks %d h %d \n",rank_cart,siderank[h], num_tasks,h);
+    if(siderank[h] != num_tasks){
+      MPI_Isend(&sidecells[h], 1, MPI_CHAR, siderank[h], 1, cart_comm, &(request1[numrequest]));
+      MPI_Irecv(&recvsidecells[h], 1, MPI_CHAR, siderank[h], 1, cart_comm, &(request1[numrequest+1]));
+      numrequest = numrequest +2;
+      printf("%d h %d numrequest %d \n",rank_cart,h, numrequest );
     }
-    if (countside != 0) {
-        //printf("%d before MPI_Waitall countside %d request1 %d\n", rank_cart, countside,(sizeof(request1) / sizeof(MPI_Request)));
-        MPI_Waitall(countside, request1, status1);
+  }
+  printf("%d before MPI_Waitall countside %d request1 %d\n",rank_cart,countside,(sizeof(request1)/sizeof(MPI_Request)));
+  MPI_Waitall(countside, request1, status1);
+  printf("%d out\n",rank_cart );
+  // put side cells in place
+  int a1, a2, a3, a4;
+  for(int h = 0; h < 4; h++){
+   if(siderank[h] < num_tasks){
+      switch (h) {
+        case 0:
+        a1 = calcIndex(width, 0, 0);
+        field[a1] = recvsidecells[h];
+        break;
+        case 1:
+        a2 = calcIndex(width, 0, height - 1);
+        field[a2] = recvsidecells[h];
+        break;
+        case 2:
+        a3 = calcIndex(width, width-1, 0);
+        field[a3] = recvsidecells[h];
+        break;
+        case 3:
+        a4 = calcIndex(width, width-1, height - 1);
+        field[a4] = recvsidecells[h];
+        break;
+      }
     }
-    //printf("%d out\n", rank_cart);
-    // put side cells in place
-    int a1, a2, a3, a4;
-    for (int d = 0; d < 4; d++) {
-        if (siderank[d] < num_tasks) {
-            switch (d) {
-                case 0:
-                    a1 = calcIndex(width, 0, 0);
-                    field[a1] = recvsidecells[d];
-                    break;
-                case 1:
-                    a2 = calcIndex(width, 0, height - 1);
-                    field[a2] = recvsidecells[d];
-                    break;
-                case 2:
-                    a3 = calcIndex(width, width - 1, 0);
-                    field[a3] = recvsidecells[d];
-                    break;
-                case 3:
-                    a4 = calcIndex(width, width - 1, height - 1);
-                    field[a4] = recvsidecells[d];
-                    break;
-            }
-        }
-    }
-    //printf("%d out 2\n", rank_cart);
-    //prepare sendcells
-    for (int y = 0; y < height - 1; y++) {
-        int e = calcIndex(width, 1, y);
-        int f = calcIndex(width, width - 2, y);
-        sendcellslr[0][y] = field[e];
-        sendcellslr[1][y] = field[f];
-    }
-    sendcellslr[0][height] = 'l';
-    sendcellslr[1][height] = 'r';
-    for (int x = 0; x < width - 1; x++) {
-        int g = calcIndex(width, x, 1);
-        int h = calcIndex(width, x, height - 2);
-        sendcellstb[1][x] = field[g];
-        sendcellstb[0][x] = field[h];
-    }
-    sendcellstb[1][width] = 'b';
-    sendcellstb[0][width] = 't';
-    //printf("%d out 3\n", rank_cart);
-    //send siderank
-    MPI_Request request[2 * countneighbor];
-    MPI_Status status[2 * countneighbor];
-    int numrequest1 = 0;
-    for (int i = 0; i < 4; i++) {
-        printf("%d neighborank %d num_tasks %d i %d \n", rank_cart, neighborank[i], num_tasks, i);
-        if (neighborank[i] != num_tasks && neighborank[i] != rank_cart) {
-          if(i < 2){
-            MPI_Isend(&sendcellstb[i], width + 1, MPI_CHAR, neighborank[i], 1, cart_comm, &(request[numrequest1]));
-            MPI_Irecv(&recvcellstb[i], width + 1, MPI_CHAR, neighborank[i], 1, cart_comm, &(request[numrequest1 + 1]));
-            numrequest1 = numrequest1 + 2;
-            printf("%d h %d numrequest %d recvcells %c sendcells %c \n", rank_cart, i, numrequest1, recvcellstb[i][width],sendcellstb[i][width]);
-          }else{
-            printf("%d neighbor %d\n",rank_cart, neighborank[i]);
-            printf("%d h %d numrequest %d recvcells %c sendcells %c \n", rank_cart, i, numrequest1, recvcellslr[i-2][height],sendcellslr[i-2][height]);
-            MPI_Isend(&sendcellslr[i-2], height + 1, MPI_CHAR, neighborank[i], 1, cart_comm, &(request[numrequest1]));
-            MPI_Irecv(&recvcellslr[i-2], height + 1, MPI_CHAR, neighborank[i], 1, cart_comm, &(request[numrequest1 + 1]));
-            numrequest1 = numrequest1 + 2;
-            printf("%d h %d numrequest %d recvcells %c \n", rank_cart, i, numrequest1, recvcellslr[i-2][height]);
-          }
-        }
-    }
-    if (countneighbor != 0) {
-        //printf("%d before MPI_Waitall countneighbor %d request %d\n", rank_cart, countneighbor,(sizeof(request) / sizeof(MPI_Request)));
-        MPI_Waitall(countside, request, status);
-    }
-    //printf("%d after send and recved \n", rank_cart);
+  }
+  //prepare sendcells
+  for (int y = 0; y < height - 1; y++) {
+      int j = calcIndex(width, 1, y);
+      int k = calcIndex(width, width - 2, y);
+      sendcells[2][y] = field[j];
+      sendcells[3][y] = field[k];
+  }
+  sendcells[2][height] = 'l';
+  sendcells[3][height] = 'r';
+  for (int x = 0; x < width - 1; x++) {
+    int b = calcIndex(width, x, 1);
+    int c = calcIndex(width, x, height - 2);
+    sendcells[1][x] = field[b];
+    sendcells[0][x] = field[c];
+  }
+  sendcells[1][width] = 'b';
+  sendcells[0][width] = 't';
 
-    for (int k = 0; k < 2; k++) {
-        //printf("%d checking cells copy %c \n",rank_cart,recvcellstb[k][width] );
-        if (recvcellstb[k][width] == 'b') {
-            for (int x = 0; x < width - 1; x++) {
-                int l = calcIndex(width, x, height - 1);
-                field[l] = recvcellstb[k][x];
-                //printf("%d checking cells copy b \n");
-            }
-        }
-        if (recvcellstb[k][width] == 't') {
-            for (int x = 0; x < width - 1; x++) {
-                int m = calcIndex(width, x, 0);
-                field[m] = recvcellstb[k][x];
-                //printf("%d checking cells copy t \n");
-            }
-        }
-        if (recvcellslr[k][width] == 'r') {
-            for (int y = 0; y < height - 1; y++) {
-                int n = calcIndex(width, 0, y);
-                field[n] = recvcellslr[k][y];
-                //printf("%d checking cells copy r \n");
-            }
-        }
-        if (recvcellslr[k][width] == 'l') {
-            for (int y = 0; y < height - 1; y++) {
-                int o = calcIndex(width, width - 1, y);
-                field[o] = recvcellslr[k][y];
-                //printf("%d checking cells copy l \n");
-            }
-        }
+    MPI_Request request[8];
+    MPI_Status status[8];
+    MPI_Isend(sendcells[0], width+1, MPI_CHAR, toprank, 1, cart_comm, &(request[0]));
+    MPI_Isend(sendcells[1], width+1, MPI_CHAR, botrank, 1, cart_comm, &(request[1]));
+    MPI_Isend(sendcells[2], height+1, MPI_CHAR, leftrank, 1, cart_comm, &(request[2]));
+    MPI_Isend(sendcells[3], height+1, MPI_CHAR, rightrank, 1, cart_comm, &(request[3]));
+
+    MPI_Irecv(recvcells[0], width+1, MPI_CHAR, toprank, 1, cart_comm, &(request[4]));
+    MPI_Irecv(recvcells[1], width+1, MPI_CHAR, botrank, 1, cart_comm, &(request[5]));
+    MPI_Irecv(recvcells[2], height+1, MPI_CHAR, leftrank, 1, cart_comm, &(request[6]));
+    MPI_Irecv(recvcells[3], height+1, MPI_CHAR, rightrank, 1, cart_comm, &(request[7]));
+    MPI_Waitall(8, request, status);
+
+
+  for(int i = 0; i < 4; i++){
+    if(recvcells[i][width] == 'b'){
+      for (int x = 0; x < width - 1; x++) {
+        int a = calcIndex(width, x, height - 1);
+        field[a] = recvcells[i][x];
+      }
     }
-    //printf("%d out 6\n", rank_cart);
+    if(recvcells[i][width] == 't'){
+      for (int x = 0; x < width - 1; x++) {
+        int d = calcIndex(width, x, 0);
+        field[d] = recvcells[i][x];
+      }
+    }
+    if(recvcells[i][width] == 'r'){
+      for (int y = 0; y < height - 1; y++) {
+          int l = calcIndex(width, 0, y);
+          field[l] = recvcells[i][y];
+      }
+    }
+    if(recvcells[i][width] == 'l'){
+      for (int y = 0; y < height - 1; y++) {
+          int u = calcIndex(width, width - 1, y);
+          field[u] = recvcells[i][y];
+      }
+    }
+  }
 }
 
 void game(int width, int height, int num_timesteps, int gsizes[2]) {
