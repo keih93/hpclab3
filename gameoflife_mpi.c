@@ -450,10 +450,10 @@ void game (int width, int height, int num_timesteps, int gsizes[2]) {
   //filling_rank (currentfield, width, height);
   apply_periodic_boundaries(currentfield,width,height);
   int time = 0;
-  write_field (currentfield, gsizes[X], gsizes[Y], time);
+  //write_field (currentfield, gsizes[X], gsizes[Y], time);
   for (time = 1; time <= num_timesteps; time++) {
     evolve (currentfield, newfield, width, height);
-    write_field (newfield, gsizes[X], gsizes[Y], time);
+    //write_field (newfield, gsizes[X], gsizes[Y], time);
     apply_periodic_boundaries(newfield,width,height);
     char *temp = currentfield;
     currentfield = newfield;
