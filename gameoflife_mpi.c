@@ -304,16 +304,16 @@ void apply_periodic_boundaries(char * field, int width, int height){
       switch (rank_cart) {
         case 3:
         a1 = calcIndex(width, 0, 0);
-        field[a1] = recvsidecells[h];
+        field[a1] = recvsidecells;
         case 1:
         a2 = calcIndex(width, 0, height - 1);
-        field[a2] = recvsidecells[h];
+        field[a2] = recvsidecells;
         case 2:
         a3 = calcIndex(width, width-1, 0);
-        field[a3] = recvsidecells[h];
+        field[a3] = recvsidecells;
         case 0:
         a4 = calcIndex(width, width-1, height - 1);
-        field[a4] = recvsidecells[h];
+        field[a4] = recvsidecells;
   }
   //prepare sendcells
   for (int y = 0; y < height - 1; y++) {
