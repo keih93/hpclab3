@@ -384,31 +384,35 @@ void apply_periodic_boundaries(char *field, int width, int height) {
                (sizeof(request) / sizeof(MPI_Request)));
         MPI_Waitall(countside, request, status);
     }
-    printf("after send and recved");
+    printf("%d after send and recved \n", rank_cart);
 
     for (int i = 0; i < 4; i++) {
         if (recvcells[i][width] == 'b') {
             for (int x = 0; x < width - 1; x++) {
                 int a = calcIndex(width, x, height - 1);
                 field[a] = recvcells[i][x];
+                printf("%d checking cells copy b \n");
             }
         }
         if (recvcells[i][width] == 't') {
             for (int x = 0; x < width - 1; x++) {
                 int d = calcIndex(width, x, 0);
                 field[d] = recvcells[i][x];
+                printf("%d checking cells copy t \n");
             }
         }
         if (recvcells[i][width] == 'r') {
             for (int y = 0; y < height - 1; y++) {
                 int l = calcIndex(width, 0, y);
                 field[l] = recvcells[i][y];
+                printf("%d checking cells copy r \n");
             }
         }
         if (recvcells[i][width] == 'l') {
             for (int y = 0; y < height - 1; y++) {
                 int u = calcIndex(width, width - 1, y);
                 field[u] = recvcells[i][y];
+                printf("%d checking cells copy l \n");
             }
         }
     }
